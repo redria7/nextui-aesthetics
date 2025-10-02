@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"fmt"
 	"os"
+	"io"
 	"path/filepath"
 )
 
@@ -52,28 +53,76 @@ func getDefaultWallpaperPath() string {
 	return ""
 }
 
-func GetWallpaperPath(itemPath string) string {
-	if DoesFileExists(itemPath + "/.media/bg.png") {
-		return itemPath + "/.media/bg.png"
+func GetWallpaperPath(itemPath string, parentPath string) string {
+	actualWallpaperPath := genWallpaperPath(itemPath)
+	if DoesFileExists(actualWallpaperPath) {
+		return actualWallpaperPath
 	}
-	return getDefaultWallpaperPath()
+	return GetListWallpaperPath(parentPath)
 }
 
 func GetListWallpaperPath(itemPath string) string {
 	if itemPath == GetRomDirectory() {
 		return getDefaultWallpaperPath()
 	}
-	if DoesFileExists(itemPath + "/.media/bglist.png") {
-		return itemPath + "/.media/bglist.png"
+	actualListWallpaperPath := genListWallpaperPath(itemPath)
+	if DoesFileExists(actualListWallpaperPath) {
+		return actualListWallpaperPath
 	}
 	return getDefaultWallpaperPath()
 }
 
 func GetIconPath(parentPath string, itemName string) string {
-	if DoesFileExists(parentPath + "/.media/" + itemName + ".png") {
-		return parentPath + "/.media/" + itemName + ".png"
+	actualIconPath := genIconPath(parentPath, itemName)
+	if DoesFileExists(actualIconPath) {
+		return actualIconPath
 	}
 	return ""
+}
+
+func genWallpaperPath(itemPath string) string {
+	return itemPath + "/.media/bg.png"
+}
+
+func genListWallpaperPath(itemPath string) string {
+	return itemPath + "/.media/bglist.png"
+}
+
+func genIconPath(parentPath string, itemName string) string {
+	return parentPath + "/.media/" + itemName + ".png"
+}
+
+// copyFile copies a file from src to dst.
+func copyFile(sourcePath, destinationPath string) error {
+	EnsureDirectoryExists(filepath.Dir(destinationPath))
+
+	sourceFile, err := os.Open(sourcePath)
+	if err != nil {
+		return fmt.Errorf("failed to open source file: %w", err)
+	}
+	defer sourceFile.Close()
+
+	destinationFile, err := os.Create(destinationPath)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer destinationFile.Close()
+
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return fmt.Errorf("failed to copy file contents: %w", err)
+	}
+
+	sourceFileInfo, err := sourceFile.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to get source file info: %w", err)
+	}
+	err = os.Chmod(destinationPath, sourceFileInfo.Mode())
+	if err != nil {
+		return fmt.Errorf("failed to set destination file permissions: %w", err)
+	}
+
+	return nil
 }
 
 // func DeleteRom(game shared.Item, romDirectory shared.RomDirectory) {

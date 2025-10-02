@@ -61,7 +61,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	})
 	//		If main menu, add collections and recently played
 	if len(db.RomDirectoryList) == 0 {
-		if collectionsItem := buildCollectionsMenuItem(logger); collectionsItem != nil {
+		if collectionsItem := buildCollectionsMenuItem(current_directory, logger); collectionsItem != nil {
 			menuItems = append(menuItems, *collectionsItem)
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
@@ -74,7 +74,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Path:        utils.RecentlyPlayedDirectory,
 			},
 			ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
-			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory),
+			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
 		})
 	}
 	//		Always add relevant folders
@@ -136,7 +136,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	return nil, utils.ExitCodeCancel, nil
 }
 
-func buildCollectionsMenuItem(logger *zap.Logger) *gaba.MenuItem {
+func buildCollectionsMenuItem(current_directory shared.RomDirectory, logger *zap.Logger) *gaba.MenuItem {
 	fb := filebrowser.NewFileBrowser(logger)
 
 	if err := fb.CWD(utils.GetCollectionDirectory(), false); err != nil {
@@ -158,7 +158,7 @@ func buildCollectionsMenuItem(logger *zap.Logger) *gaba.MenuItem {
 			Path:        common.CollectionDirectory,
 		},
 		ImageFilename: utils.GetIconPath(common.SDCardRoot, CollectionsDisplayName),
-		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory),
+		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, current_directory.Path),
 	}
 }
 
@@ -184,7 +184,7 @@ func buildRomDirectoryMenuItems(current_directory shared.RomDirectory, logger *z
 				Focused:  false,
 				Metadata: romDirectory,
 				ImageFilename: utils.GetIconPath(current_directory.Path, romDirectory.DisplayName),
-				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path),
+				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, current_directory.Path),
 			}
 			menuItems = append(menuItems, menuItem)
 		}

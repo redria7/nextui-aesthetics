@@ -28,6 +28,7 @@ func init() {
 	gaba.InitSDL(gaba.Options{
 		WindowTitle:    "Aesthetics",
 		ShowBackground: true,
+		LogFilename:    "aesthetics.log",
 	})
 
 	common.SetLogLevel(defaultLogLevel)
