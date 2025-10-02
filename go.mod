@@ -1,6 +1,6 @@
 module nextui-aesthetics
 
-go 1.24.4
+go 1.24
 
 require (
 	github.com/UncleJunVIP/certifiable v1.0.0
