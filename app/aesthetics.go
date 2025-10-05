@@ -162,7 +162,9 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 		state.AddNewMenuPosition()
 		romDir := result.(shared.RomDirectory)
 		if romDir.DisplayName == ui.DecorationsDisplayName {
-			return ui.InitDirectoryBrowser([]shared.RomDirectory{})
+			var dblist []shared.RomDirectory
+			return ui.InitDirectoryBrowser(dblist)
+			//return ui.InitDirectoryBrowser([]shared.RomDirectory{})
 		}
 	case utils.ExitCodeError, utils.ExitCodeCancel:
 		os.Exit(0)
