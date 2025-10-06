@@ -2,7 +2,6 @@ package ui
 
 import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
@@ -60,7 +59,7 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 	// Process successful results
 	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
-		return selection.Unwrap().SelectedItem.Metadata.(shared.RomDirectory), utils.ExitCodeSelect, nil
+		return selection.Unwrap().SelectedItem.Metadata.(string), utils.ExitCodeSelect, nil
 	}
 
 	return nil, utils.ExitCodeCancel, nil

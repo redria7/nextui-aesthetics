@@ -96,10 +96,14 @@ func runApplicationLoop() {
 }
 
 func handleScreenTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	logger := common.GetLoggerInstance()
+	logger.Info("screen transition")
 	switch currentScreen.Name() {
 	case models.ScreenNames.MainMenu:
+		logger.Info("going to main transition")
 		return handleMainMenuTransition(result, code)
 	case models.ScreenNames.DirectoryBrowser:
+		logger.Info("going to directory transition")
 		return handleDirectoryBrowserTransition(currentScreen, result, code)
 	// case models.ScreenNames.Settings:
 	// 	state.ReturnToMain()
@@ -151,17 +155,23 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 	// case models.ScreenNames.PlayHistoryFilter:
 	// 	return handlePlayHistoryFilterTransition(currentScreen, result, code)
 	default:
+		logger.Info("going to main")
 		state.ReturnToMain()
 		return ui.InitMainMenu()
 	}
 }
 
 func handleMainMenuTransition(result interface{}, code int) models.Screen {
+	logger := common.GetLoggerInstance()
+	logger.Info("in main transition")
 	switch code {
 	case utils.ExitCodeSelect:
+		logger.Info("select called")
 		state.AddNewMenuPosition()
-		romDir := result.(shared.RomDirectory)
-		if romDir.DisplayName == ui.DecorationsDisplayName {
+		logger.Info("position added")
+		romDir := result.(string)
+		logger.Info("result collected")
+		if romDir == ui.DecorationsDisplayName {
 			return ui.InitDirectoryBrowser([]shared.RomDirectory{})
 		}
 	case utils.ExitCodeError, utils.ExitCodeCancel:

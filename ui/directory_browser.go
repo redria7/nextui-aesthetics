@@ -44,9 +44,9 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		Tag:         "Main Menu",
 		Path:        utils.GetRomDirectory(),
 	}
-	//listWallpaperName := MainListWallpaper
+	listWallpaperName := MainListWallpaper
 	if len(db.RomDirectoryList) > 0 {
-		//listWallpaperName = DefaultListWallpaper
+		listWallpaperName = DefaultListWallpaper
 		current_directory = db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 	}
 	logger.Info("directory list checked")
@@ -54,32 +54,32 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	// Add items to menu
 	var menuItems []gaba.MenuItem
 	//		Add default list wallpaper option
-	// menuItems = append(menuItems, gaba.MenuItem{
-	// 	Text:     listWallpaperName,
-	// 	Selected: false,
-	// 	Focused:  false,
-	// 	Metadata: DefaultListWallpaper,
-	// 	BackgroundFilename: utils.GetListWallpaperPath(current_directory.Path),
-	// })
+	menuItems = append(menuItems, gaba.MenuItem{
+		Text:     listWallpaperName,
+		Selected: false,
+		Focused:  false,
+		Metadata: DefaultListWallpaper,
+		BackgroundFilename: utils.GetListWallpaperPath(current_directory.Path),
+	})
 	logger.Info("added default")
 	//		If main menu, add collections and recently played
-	// if len(db.RomDirectoryList) == 0 {
-	// 	if collectionsItem := buildCollectionsMenuItem(current_directory, logger); collectionsItem != nil {
-	// 		menuItems = append(menuItems, *collectionsItem)
-	// 	}
-	// 	menuItems = append(menuItems, gaba.MenuItem{
-	// 		Text:     RecentlyPlayedName,
-	// 		Selected: false,
-	// 		Focused:  false,
-	// 		Metadata: shared.RomDirectory{
-	// 			DisplayName: RecentlyPlayedName,
-	// 			Tag:         RecentlyPlayedTag,
-	// 			Path:        utils.RecentlyPlayedDirectory,
-	// 		},
-	// 		ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
-	// 		BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
-	// 	})
-	// }
+	if len(db.RomDirectoryList) == 0 {
+		if collectionsItem := buildCollectionsMenuItem(current_directory, logger); collectionsItem != nil {
+			menuItems = append(menuItems, *collectionsItem)
+		}
+		menuItems = append(menuItems, gaba.MenuItem{
+			Text:     RecentlyPlayedName,
+			Selected: false,
+			Focused:  false,
+			Metadata: shared.RomDirectory{
+				DisplayName: RecentlyPlayedName,
+				Tag:         RecentlyPlayedTag,
+				Path:        utils.RecentlyPlayedDirectory,
+			},
+			ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
+			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
+		})
+	}
 	//		Always add relevant folders
 	romItems, err := buildRomDirectoryMenuItems(current_directory, logger)
 	if err != nil {
