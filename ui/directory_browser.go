@@ -57,7 +57,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		Selected: false,
 		Focused:  false,
 		Metadata: DefaultListWallpaper,
-		//BackgroundFilename: utils.GetListWallpaperPath(current_directory.Path),
+		BackgroundFilename: utils.GetListWallpaperPath(current_directory.Path),
 	})
 	//		If main menu, add collections and recently played
 	if len(db.RomDirectoryList) == 0 {
@@ -73,16 +73,16 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Tag:         RecentlyPlayedTag,
 				Path:        utils.RecentlyPlayedDirectory,
 			},
-			//ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
-			//BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
+			ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
+			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
 		})
 	}
 	//		Always add relevant folders
-	romItems, err := buildRomDirectoryMenuItems(current_directory, logger)
-	if err != nil {
-		return nil, utils.ExitCodeError, err
-	}
-	menuItems = append(menuItems, romItems...)
+	// romItems, err := buildRomDirectoryMenuItems(current_directory, logger)
+	// if err != nil {
+	// 	return nil, utils.ExitCodeError, err
+	// }
+	// menuItems = append(menuItems, romItems...)
 
 	// Set options
 	title := current_directory.DisplayName
@@ -157,8 +157,8 @@ func buildCollectionsMenuItem(current_directory shared.RomDirectory, logger *zap
 			Tag:         CollectionsTag,
 			Path:        common.CollectionDirectory,
 		},
-		//ImageFilename: utils.GetIconPath(common.SDCardRoot, CollectionsDisplayName),
-		//BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, current_directory.Path),
+		ImageFilename: utils.GetIconPath(common.SDCardRoot, CollectionsDisplayName),
+		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, current_directory.Path),
 	}
 }
 
@@ -183,8 +183,8 @@ func buildRomDirectoryMenuItems(current_directory shared.RomDirectory, logger *z
 				Selected: false,
 				Focused:  false,
 				Metadata: romDirectory,
-				//ImageFilename: utils.GetIconPath(current_directory.Path, romDirectory.DisplayName),
-				//BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, current_directory.Path),
+				ImageFilename: utils.GetIconPath(current_directory.Path, romDirectory.DisplayName),
+				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, current_directory.Path),
 			}
 			menuItems = append(menuItems, menuItem)
 		}
