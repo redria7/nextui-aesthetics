@@ -18,7 +18,7 @@ const (
 	RecentlyPlayedName				= "Recently Played"
 	RecentlyPlayedTag				= "Recently Played"
 	DefaultListWallpaper			= "List Wallpaper"
-	MainListWallpaper				= "Default Wallpaper"
+	mainListWallpaper				= "Default Wallpaper"
 	ExitCodeDefaultListWallpaper	= 5
 )
 
@@ -38,18 +38,13 @@ func (db DirectoryBrowser) Name() sum.Int[models.ScreenName] {
 
 func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	logger := common.GetLoggerInstance()
-	logger.Info("starting directory browser")
-	current_directory := shared.RomDirectory{
-		DisplayName: "Main Menu",
-		Tag:         "Main Menu",
-		Path:        utils.GetRomDirectory(),
+	// directory list should always be kicked off with the main rom menu on first load, so it always contains at least 1 value
+	topLevel, _, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
+	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
+	listWallpaperName := DefaultListWallpaper
+	if topLevel {
+		listWallpaperName = mainListWallpaper
 	}
-	listWallpaperName := MainListWallpaper
-	if len(db.RomDirectoryList) > 0 {
-		listWallpaperName = DefaultListWallpaper
-		current_directory = db.RomDirectoryList[len(db.RomDirectoryList) - 1]
-	}
-	logger.Info("directory list checked")
 
 	// Add items to menu
 	var menuItems []gaba.MenuItem
@@ -59,12 +54,11 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		Selected: false,
 		Focused:  false,
 		Metadata: DefaultListWallpaper,
-		BackgroundFilename: utils.GetListWallpaperPath(current_directory.Path),
+		BackgroundFilename: utils.GetListWallpaperPath(currentDirectory.Path),
 	})
-	logger.Info("added default")
 	//		If main menu, add collections and recently played
-	if len(db.RomDirectoryList) == 0 {
-		if collectionsItem := buildCollectionsMenuItem(current_directory, logger); collectionsItem != nil {
+	if topLevel {
+		if collectionsItem := buildCollectionsMenuItem(parentPath, logger); collectionsItem != nil {
 			menuItems = append(menuItems, *collectionsItem)
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
@@ -76,20 +70,19 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Tag:         RecentlyPlayedTag,
 				Path:        utils.RecentlyPlayedDirectory,
 			},
-			ImageFilename: utils.GetIconPath(common.SDCardRoot, RecentlyPlayedName),
-			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, current_directory.Path),
+			ImageFilename: utils.GetIconPath(parentPath, RecentlyPlayedName),
+			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, parentPath),
 		})
 	}
 	//		Always add relevant folders
-	romItems, err := buildRomDirectoryMenuItems(current_directory, logger)
+	romItems, err := buildRomDirectoryMenuItems(currentDirectory, logger)
 	if err != nil {
 		return nil, utils.ExitCodeError, err
 	}
 	menuItems = append(menuItems, romItems...)
-	logger.Info("added rom directories")
 
 	// Set options
-	title := current_directory.DisplayName
+	title := currentDirectory.DisplayName
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EnableAction = true
@@ -140,7 +133,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	return nil, utils.ExitCodeCancel, nil
 }
 
-func buildCollectionsMenuItem(current_directory shared.RomDirectory, logger *zap.Logger) *gaba.MenuItem {
+func buildCollectionsMenuItem(parentPath string, logger *zap.Logger) *gaba.MenuItem {
 	fb := filebrowser.NewFileBrowser(logger)
 
 	if err := fb.CWD(utils.GetCollectionDirectory(), false); err != nil {
@@ -161,17 +154,17 @@ func buildCollectionsMenuItem(current_directory shared.RomDirectory, logger *zap
 			Tag:         CollectionsTag,
 			Path:        common.CollectionDirectory,
 		},
-		ImageFilename: utils.GetIconPath(common.SDCardRoot, CollectionsDisplayName),
-		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, current_directory.Path),
+		ImageFilename: utils.GetIconPath(parentPath, CollectionsDisplayName),
+		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, parentPath),
 	}
 }
 
-func buildRomDirectoryMenuItems(current_directory shared.RomDirectory, logger *zap.Logger) ([]gaba.MenuItem, error) {
+func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *zap.Logger) ([]gaba.MenuItem, error) {
 	fb := filebrowser.NewFileBrowser(logger)
 
 	// TODO: check user settings for hide empty
 	// if err := fb.CWD(utils.GetRomDirectory(), state.GetAppState().Config.HideEmpty); err != nil {
-	if err := fb.CWD(current_directory.Path, true); err != nil {
+	if err := fb.CWD(currentDirectory.Path, true); err != nil {
 		showRomDirectoryError()
 		common.LogStandardFatal("Error fetching directories", err)
 		return nil, err
@@ -187,8 +180,8 @@ func buildRomDirectoryMenuItems(current_directory shared.RomDirectory, logger *z
 				Selected: false,
 				Focused:  false,
 				Metadata: romDirectory,
-				ImageFilename: utils.GetIconPath(current_directory.Path, romDirectory.DisplayName),
-				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, current_directory.Path),
+				ImageFilename: utils.GetIconPath(currentDirectory.Path, romDirectory.DisplayName),
+				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, currentDirectory.Path),
 			}
 			menuItems = append(menuItems, menuItem)
 		}

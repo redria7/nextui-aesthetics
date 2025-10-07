@@ -44,16 +44,6 @@ func init() {
 
 	logger := common.GetLoggerInstance()
 	logger.Debug("Configuration loaded", zap.Object("config", config))
-
-	// collectionDir := utils.GetCollectionDirectory()
-	// if _, err := os.Stat(collectionDir); os.IsNotExist(err) {
-	// 	if mkdirErr := os.MkdirAll(collectionDir, defaultDirPerm); mkdirErr != nil {
-	// 		gaba.ConfirmationMessage("Unable to create Collections directory!", []gaba.FooterHelpItem{
-	// 			{ButtonName: "B", HelpText: "Quit"},
-	// 		}, gaba.MessageOptions{})
-	// 		log.Fatal("Unable to create collection directory", zap.Error(mkdirErr))
-	// 	}
-	// }
 }
 
 func loadConfig() (*models.Config, error) {
@@ -96,83 +86,31 @@ func runApplicationLoop() {
 }
 
 func handleScreenTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
-	logger := common.GetLoggerInstance()
-	logger.Info("screen transition")
 	switch currentScreen.Name() {
-	case models.ScreenNames.MainMenu:
-		logger.Info("going to main transition")
-		return handleMainMenuTransition(result, code)
-	case models.ScreenNames.DirectoryBrowser:
-		logger.Info("going to directory transition")
-		return handleDirectoryBrowserTransition(currentScreen, result, code)
-	// case models.ScreenNames.Settings:
-	// 	state.ReturnToMain()
-	// 	return ui.InitMainMenu()
-	// case models.ScreenNames.CollectionsList:
-	// 	return handleCollectionsListTransition(result, code)
-	// case models.ScreenNames.CollectionManagement:
-	// 	return handleCollectionManagementTransition(currentScreen, result, code)
-	// case models.ScreenNames.CollectionOptions:
-	// 	return handleCollectionOptionsTransition(currentScreen, result, code)
-	// case models.ScreenNames.Tools:
-	// 	return handleToolsTransition(result, code)
-	// case models.ScreenNames.GlobalActions:
-	// 	return handleGlobalActionsTransition(code)
-	// case models.ScreenNames.GamesList:
-	// 	return handleGamesListTransition(currentScreen, result, code)
-	// case models.ScreenNames.SearchBox:
-	// 	return handleSearchBoxTransition(currentScreen, result, code)
-	// case models.ScreenNames.Actions:
-	// 	return handleActionsTransition(currentScreen, result, code)
-	// case models.ScreenNames.BulkActions:
-	// 	return handleBulkActionsTransition(currentScreen, result, code)
-	// case models.ScreenNames.AddToCollection:
-	// 	return handleAddToCollectionTransition(currentScreen, code)
-	// case models.ScreenNames.CollectionCreate:
-	// 	return handleCollectionCreateTransition(currentScreen)
-	// case models.ScreenNames.DownloadArt:
-	// 	return handleDownloadArtTransition(currentScreen)
-	// case models.ScreenNames.AddToArchive:
-	// 	return handleAddToArchiveTransition(currentScreen, result, code)
-	// case models.ScreenNames.ArchiveCreate:
-	// 	return handleArchiveCreateTransition(currentScreen, result, code)
-	// case models.ScreenNames.ArchiveList:
-	// 	return handleArchiveListTransition(result, code)
-	// case models.ScreenNames.ArchiveGamesList:
-	// 	return handleArchiveGamesListTransition(currentScreen, result, code)
-	// case models.ScreenNames.ArchiveManagement:
-	// 	return handleArchiveManagementTransition(currentScreen, result, code)
-	// case models.ScreenNames.ArchiveOptions:
-	// 	return handleArchiveOptionsTransition(currentScreen, result, code)
-	// case models.ScreenNames.PlayHistoryList:
-	// 	return handlePlayHistoryListTransition(currentScreen, result, code)
-	// case models.ScreenNames.PlayHistoryGameList:
-	// 	return handlePlayHistoryGameListTransition(currentScreen, result, code)
-	// case models.ScreenNames.PlayHistoryGameDetails:
-	// 	return handlePlayHistoryGameDetailsTransition(currentScreen, result, code)
-	// case models.ScreenNames.PlayHistoryGameHistory:
-	// 	return handlePlayHistoryGameHistoryTransition(currentScreen, result, code)
-	// case models.ScreenNames.PlayHistoryFilter:
-	// 	return handlePlayHistoryFilterTransition(currentScreen, result, code)
-	default:
-		logger.Info("going to main")
-		state.ReturnToMain()
-		return ui.InitMainMenu()
+		case models.ScreenNames.MainMenu:
+			return handleMainMenuTransition(result, code)
+		case models.ScreenNames.DirectoryBrowser:
+			return handleDirectoryBrowserTransition(currentScreen, result, code)
+		case models.ScreenNames.DecorationOptions:
+			return handleDecorationOptionsTransition(currentScreen, result, code)
+		default:
+			state.ReturnToMain()
+			return ui.InitMainMenu()
 	}
 }
 
 func handleMainMenuTransition(result interface{}, code int) models.Screen {
-	logger := common.GetLoggerInstance()
-	logger.Info("in main transition")
 	switch code {
 	case utils.ExitCodeSelect:
-		logger.Info("select called")
 		state.AddNewMenuPosition()
-		logger.Info("position added")
 		romDir := result.(string)
-		logger.Info("result collected")
 		if romDir == ui.DecorationsDisplayName {
-			return ui.InitDirectoryBrowser([]shared.RomDirectory{})
+			return ui.InitDirectoryBrowser([]shared.RomDirectory{
+				shared.RomDirectory{
+					DisplayName: "Main Menu",
+					Tag:         "Main Menu",
+					Path:        utils.GetRomDirectory(),
+			}})
 		}
 	case utils.ExitCodeError, utils.ExitCodeCancel:
 		os.Exit(0)
@@ -186,21 +124,37 @@ func handleDirectoryBrowserTransition(currentScreen models.Screen, result interf
 	db := currentScreen.(ui.DirectoryBrowser)
 
 	switch code {
-	case utils.ExitCodeSelect:
-		state.AddNewMenuPosition()
-		return ui.InitDirectoryBrowser(append(db.RomDirectoryList, result.(shared.RomDirectory)))
-	case utils.ExitCodeCancel:
-		dbListLength := len(db.RomDirectoryList)
-		if dbListLength == 0 {
+		case utils.ExitCodeSelect:
+			state.AddNewMenuPosition()
+			return ui.InitDirectoryBrowser(append(db.RomDirectoryList, result.(shared.RomDirectory)))
+		case utils.ExitCodeCancel:
+			dbListLength := len(db.RomDirectoryList)
+			if dbListLength == 1 {
+				state.ReturnToMain()
+				return ui.InitMainMenu() 
+			}
+			state.RemoveMenuPositions(1)
+			return ui.InitDirectoryBrowser(db.RomDirectoryList[:dbListLength - 1])
+		case utils.ExitCodeAction:
+			state.AddNewMenuPosition()
+			return ui.InitDecorationOptions(db.RomDirectoryList, false)
+		case ui.ExitCodeDefaultListWallpaper:
+			state.AddNewMenuPosition()
+			return ui.InitDecorationOptions(db.RomDirectoryList, true)
+		default:
 			state.ReturnToMain()
-			return ui.InitMainMenu() 
-		}
-		return ui.InitDirectoryBrowser(db.RomDirectoryList[:dbListLength - 1])
-	case utils.ExitCodeAction:
-		utils.ShowTimedMessage(fmt.Sprintf("Action on %s!", result.(shared.RomDirectory).DisplayName), shortMessageDelay)
-		return ui.InitDirectoryBrowser(db.RomDirectoryList)
-	default:
-		state.ReturnToMain()
-		return ui.InitMainMenu()
+			return ui.InitMainMenu()
+	}
+}
+
+func handleDecorationOptionsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	do := currentScreen.(ui.DecorationOptions)
+	switch code {
+		case utils.ExitCodeSelect:
+			utils.ShowTimedMessage(fmt.Sprintf("Selected %s!", result.(string)), shortMessageDelay)
+			return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
+		default:
+			state.RemoveMenuPositions(1)
+			return ui.InitDirectoryBrowser(do.RomDirectoryList)
 	}
 }

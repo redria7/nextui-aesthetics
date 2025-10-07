@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	// shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
 	"fmt"
 	"os"
@@ -61,6 +61,11 @@ func GetWallpaperPath(itemPath string, parentPath string) string {
 	return GetListWallpaperPath(parentPath)
 }
 
+func CheckWallpaperPath(itemPath string) bool {
+	actualWallpaperPath := genWallpaperPath(itemPath)
+	return DoesFileExists(actualWallpaperPath)
+}
+
 func GetListWallpaperPath(itemPath string) string {
 	if itemPath == GetRomDirectory() {
 		return getDefaultWallpaperPath()
@@ -72,12 +77,25 @@ func GetListWallpaperPath(itemPath string) string {
 	return getDefaultWallpaperPath()
 }
 
+func CheckListWallpaperPath(itemPath string) bool {
+	if itemPath == GetRomDirectory() {
+		return DoesFileExists(common.SDCardRoot + "/bg.png")
+	}
+	actualListWallpaperPath := genListWallpaperPath(itemPath)
+	return DoesFileExists(actualListWallpaperPath)
+}
+
 func GetIconPath(parentPath string, itemName string) string {
 	actualIconPath := genIconPath(parentPath, itemName)
 	if DoesFileExists(actualIconPath) {
 		return actualIconPath
 	}
 	return ""
+}
+
+func CheckIconPath(parentPath string, itemName string) bool {
+	actualIconPath := genIconPath(parentPath, itemName)
+	return DoesFileExists(actualIconPath)
 }
 
 func genWallpaperPath(itemPath string) string {
@@ -90,6 +108,20 @@ func genListWallpaperPath(itemPath string) string {
 
 func genIconPath(parentPath string, itemName string) string {
 	return parentPath + "/.media/" + itemName + ".png"
+}
+
+func GetCurrentDecorationDetails(directoryList []shared.RomDirectory) (topLevel bool, currentPath string, parentPath string) {
+	topLevel = true
+	currentDirectory := directoryList[len(directoryList) - 1]
+	currentPath = currentDirectory.Path
+	parentPath = GetRomDirectory()
+
+	if len(directoryList) > 1 {
+		topLevel = false
+		parentDirectory := directoryList[len(directoryList) - 2]
+		parentPath = parentDirectory.Path
+	}
+	return topLevel, currentPath, parentPath
 }
 
 // copyFile copies a file from src to dst.
