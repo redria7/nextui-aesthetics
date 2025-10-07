@@ -136,8 +136,9 @@ func handleDirectoryBrowserTransition(currentScreen models.Screen, result interf
 			state.RemoveMenuPositions(1)
 			return ui.InitDirectoryBrowser(db.RomDirectoryList[:dbListLength - 1])
 		case utils.ExitCodeAction:
+			newDirectory := result.(shared.RomDirectory)
 			state.AddNewMenuPosition()
-			return ui.InitDecorationOptions(db.RomDirectoryList, false)
+			return ui.InitDecorationOptions(append(db.RomDirectoryList, newDirectory), false)
 		case ui.ExitCodeDefaultListWallpaper:
 			state.AddNewMenuPosition()
 			return ui.InitDecorationOptions(db.RomDirectoryList, true)
@@ -155,6 +156,9 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 			return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
 		default:
 			state.RemoveMenuPositions(1)
-			return ui.InitDirectoryBrowser(do.RomDirectoryList)
+			if do.ListWallpaperSelected {
+				return ui.InitDirectoryBrowser(do.RomDirectoryList)
+			}
+			return ui.InitDirectoryBrowser(do.RomDirectoryList[:len(do.RomDirectoryList) - 1])
 	}
 }
