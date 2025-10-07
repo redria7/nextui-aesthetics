@@ -80,7 +80,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 			})
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SelectWallpaperName,
+				Text:     wallpaperPath,
 				Selected: false,
 				Focused:  false,
 				Metadata: SelectWallpaperName,
