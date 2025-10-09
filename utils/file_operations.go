@@ -66,6 +66,10 @@ func CheckWallpaperPath(itemPath string) bool {
 	return DoesFileExists(actualWallpaperPath)
 }
 
+func GetTrueWallpaperPath(itemPath string) string {
+	return genWallpaperPath(itemPath)
+}
+
 func GetListWallpaperPath(itemPath string) string {
 	if itemPath == GetRomDirectory() {
 		return getDefaultWallpaperPath()
@@ -85,6 +89,13 @@ func CheckListWallpaperPath(itemPath string) bool {
 	return DoesFileExists(actualListWallpaperPath)
 }
 
+func GetTrueListWallpaperPath(itemPath string) string {
+	if itemPath == GetRomDirectory() {
+		return common.SDCardRoot + "/bg.png"
+	}
+	return genListWallpaperPath(itemPath)
+}
+
 func GetIconPath(parentPath string, itemName string) string {
 	actualIconPath := genIconPath(parentPath, itemName)
 	if DoesFileExists(actualIconPath) {
@@ -96,6 +107,10 @@ func GetIconPath(parentPath string, itemName string) string {
 func CheckIconPath(parentPath string, itemName string) bool {
 	actualIconPath := genIconPath(parentPath, itemName)
 	return DoesFileExists(actualIconPath)
+}
+
+func GetTrueIconPath(parentPath string, itemName string) string {
+	return genIconPath(parentPath, itemName)
 }
 
 func genWallpaperPath(itemPath string) string {
@@ -125,7 +140,7 @@ func GetCurrentDecorationDetails(directoryList []shared.RomDirectory) (topLevel 
 }
 
 // copyFile copies a file from src to dst.
-func copyFile(sourcePath, destinationPath string) error {
+func CopyFile(sourcePath, destinationPath string) error {
 	EnsureDirectoryExists(filepath.Dir(destinationPath))
 
 	sourceFile, err := os.Open(sourcePath)

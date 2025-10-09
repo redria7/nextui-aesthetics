@@ -199,12 +199,12 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 	}
 	switch code {
 		case utils.ExitCodeSelect:
-			decoration := result.(models.Decoration)
-			// Needs activity here -> confirmation screen to copy file
-			utils.ShowTimedMessage(fmt.Sprintf("Selected %s!", decoration.DecorationName), shortMessageDelay)
-			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
+			return copyFile(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, result.(models.Decoration))
 		case utils.ExitCodeAction:
 			decoration := result.(models.Decoration)
+			// if confirmDeletion("Delete this beautiful art?", existingArtPath) {
+			// 	common.DeleteFile(existingArtPath)
+			// }
 			// Needs activity here -> confirmation screen to delete file
 			utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", decoration.DecorationName), shortMessageDelay)
 			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
@@ -212,5 +212,34 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			state.RemoveMenuPositions(1)
 			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, ui.DefaultDecorationBrowserIndex)
 	}
-	
+}
+
+func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationBrowserIndex int, decoration models.Decoration) models.Screen {
+	currentDirectory := romDirectoryList[len(romDirectoryList) - 1]
+	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(romDirectoryList)
+	sourcePath := decoration.DecorationPath
+	destinationPath := ""
+	utils.CheckIconPath(parentPath, currentDirectory.DisplayName)
+	utils.CheckWallpaperPath(currentPath)
+	utils.CheckListWallpaperPath(currentPath)
+	switch decorationType {
+		case ui.SelectIconName:
+			destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.DisplayName)
+		case ui.SelectWallpaperName:
+			destinationPath = utils.GetTrueWallpaperPath(currentPath)
+		case ui.SelectListWallpaperName:
+			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
+	}
+	message := "Copy image from:\n" + sourcePath + "\nto\n" + destinationPath + "\n?"
+	if utils.ConfirmAction(message) {
+		err := utils.CopyFile(sourcePath, destinationPath)
+		if err != nil {
+			utils.ShowTimedMessage("Unable to copy image!", longMessageDelay)
+			return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
+		}
+		utils.ShowTimedMessage("Image copied successfully!", shortMessageDelay)
+		state.RemoveMenuPositions(2)
+		return ui.InitDecorationOptions(romDirectoryList, listWallpaperSelected)
+	}
+	return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
 }
