@@ -197,13 +197,14 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 				return ui.InitDecorationOptions(db.RomDirectoryList, db.ListWallpaperSelected)
 		}
 	}
-	decoration := result.(models.Decoration)
 	switch code {
 		case utils.ExitCodeSelect:
+			decoration := result.(models.Decoration)
 			// Needs activity here -> confirmation screen to copy file
 			utils.ShowTimedMessage(fmt.Sprintf("Selected %s!", decoration.DecorationName), shortMessageDelay)
-			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, result.(int))
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 		case utils.ExitCodeAction:
+			decoration := result.(models.Decoration)
 			// Needs activity here -> confirmation screen to delete file
 			utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", decoration.DecorationName), shortMessageDelay)
 			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
