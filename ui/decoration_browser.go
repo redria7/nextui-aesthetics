@@ -135,19 +135,18 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem) {
 	} else {
 		_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 		currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
-		wallpaperPath := ""
-		iconPath := ""
-		if db.DecorationType == SelectIconName {
-			wallpaperPath = utils.GetWallpaperPath(currentPath, parentPath)
-		}
-		if db.DecorationType == SelectWallpaperName {
-			iconPath = utils.GetIconPath(parentPath, currentDirectory.DisplayName)
-		}
 		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
-			if db.DecorationType == SelectIconName {
-				iconPath = decoration.DecorationPath
-			} else {
-				wallpaperPath = decoration.DecorationPath
+			wallpaperPath := ""
+			iconPath := ""
+			switch db.DecorationType {
+				case SelectIconName:
+					iconPath = decoration.DecorationPath
+					wallpaperPath = utils.GetWallpaperPath(currentPath, parentPath)
+				case SelectWallpaperName:
+					iconPath = utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+					wallpaperPath = decoration.DecorationPath
+				case SelectListWallpaperName:
+					wallpaperPath = decoration.DecorationPath
 			}
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     decoration.DecorationName,
