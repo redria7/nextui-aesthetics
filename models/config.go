@@ -7,13 +7,8 @@ import (
 )
 
 type Config struct {
-	// ArtDownloadType 			sum.Int[shared.ArtDownloadType] `yaml:"art_download_type"`
-	// FuzzySearchThreshold float64                         `yaml:"fuzzy_search_threshold"`
-	// HideEmpty       			bool                            `yaml:"hide_empty"`
-	// ShowArt         			bool                            `yaml:"show_art"`
-	LogLevel        			string                   		`yaml:"log_level"`
-	// PlayHistoryShowCollections	bool                            `yaml:"play_history_show_collections"`
-	// PlayHistoryShowArchives     bool                          	`yaml:"play_history_show_archives"`
+	LogLevel        			string  `yaml:"log_level"`
+	DecorationAggregationType	int		`yaml:"decoration_aggregation_type"`
 }
 
 func (c *Config) MarshalLogObject(enc zapcore.ObjectEncoder) error {

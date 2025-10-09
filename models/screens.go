@@ -5,7 +5,9 @@ import "qlova.tech/sum"
 type ScreenName struct {
 	DirectoryBrowser,
 	DecorationOptions,
+	DecorationBrowser,
 
+	Settings,
 	MainMenu sum.Int[ScreenName]
 	// Settings,
 	// Tools,

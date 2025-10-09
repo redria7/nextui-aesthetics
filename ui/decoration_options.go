@@ -110,6 +110,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 	// Set options
 	title := currentDirectory.DisplayName
 	options := gaba.DefaultListOptions(title, menuItems)
+	options.EnableImages = true
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
@@ -118,7 +119,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Quit"},
+		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 

@@ -95,7 +95,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Quit"},
+		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "A", HelpText: "Open Folder"},
 		{ButtonName: "X", HelpText: "Decoration Options"},
 	}

@@ -36,6 +36,7 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 
 	// Set options
 	options := gaba.DefaultListOptions(title, menuItems)
+	options.EnableAction = true
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
@@ -45,6 +46,7 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Quit"},
+		{ButtonName: "X", HelpText: "Settings"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
@@ -57,7 +59,10 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 	}
 
 	// Process successful results
-	if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
+	if selection.IsSome() && selection.Unwrap().ActionTriggered {
+		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
+		return nil, utils.ExitCodeAction, nil
+	} else if selection.IsSome() && !selection.Unwrap().ActionTriggered && selection.Unwrap().SelectedIndex != -1 {
 		state.UpdateCurrentMenuPosition(selection.Unwrap().SelectedIndex, selection.Unwrap().VisiblePosition)
 		return selection.Unwrap().SelectedItem.Metadata.(string), utils.ExitCodeSelect, nil
 	}

@@ -11,4 +11,17 @@ const (
 	ExitCodeCancel           = 2
 	ExitCodeError         = -1
 	RecentlyPlayedDirectory = "/mnt/SDCARD/Recently Played"
+	AggregateByConsole	= 0
+	AggregateByDirectory	= 1
 )
+
+var DecorationSources = []directorySource{
+	directorySource{DirectoryPath: "/mnt/SDCARD/Tools/tg5040/Theme-Manager.pak/Themes", FilenamesTagFree: true},
+	directorySource{DirectoryPath: "/mnt/SDCARD/Screenshots", FilenamesTagFree: false},
+	directorySource{DirectoryPath: "/mnt/SDCARD/Roms", FilenamesTagFree: true},
+}
+
+type directorySource struct {
+	DirectoryPath		string
+	FilenamesTagFree	bool
+}

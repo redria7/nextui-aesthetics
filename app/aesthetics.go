@@ -89,10 +89,15 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 	switch currentScreen.Name() {
 		case models.ScreenNames.MainMenu:
 			return handleMainMenuTransition(result, code)
+		case models.ScreenNames.Settings:
+			state.ReturnToMain()
+			return ui.InitMainMenu()
 		case models.ScreenNames.DirectoryBrowser:
 			return handleDirectoryBrowserTransition(currentScreen, result, code)
 		case models.ScreenNames.DecorationOptions:
 			return handleDecorationOptionsTransition(currentScreen, result, code)
+		case models.ScreenNames.DecorationBrowser:
+			return handleDecorationBrowserTransition(currentScreen, result, code)
 		default:
 			state.ReturnToMain()
 			return ui.InitMainMenu()
@@ -101,20 +106,22 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 
 func handleMainMenuTransition(result interface{}, code int) models.Screen {
 	switch code {
-	case utils.ExitCodeSelect:
-		state.AddNewMenuPosition()
-		romDir := result.(string)
-		if romDir == ui.DecorationsDisplayName {
-			return ui.InitDirectoryBrowser([]shared.RomDirectory{
-				shared.RomDirectory{
-					DisplayName: "Main Menu",
-					Tag:         "Main Menu",
-					Path:        utils.GetRomDirectory(),
-			}})
-		}
-	case utils.ExitCodeError, utils.ExitCodeCancel:
-		os.Exit(0)
-		return nil
+		case utils.ExitCodeSelect:
+			state.AddNewMenuPosition()
+			romDir := result.(string)
+			if romDir == ui.DecorationsDisplayName {
+				return ui.InitDirectoryBrowser([]shared.RomDirectory{
+					shared.RomDirectory{
+						DisplayName: "Main Menu",
+						Tag:         "Main Menu",
+						Path:        utils.GetRomDirectory(),
+				}})
+			}
+		case utils.ExitCodeAction:
+			return ui.InitSettingsScreen()
+		case utils.ExitCodeError, utils.ExitCodeCancel:
+			os.Exit(0)
+			return nil
 	}
 	state.ReturnToMain()
 	return ui.InitMainMenu()
@@ -152,8 +159,19 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 	do := currentScreen.(ui.DecorationOptions)
 	switch code {
 		case utils.ExitCodeSelect:
-			utils.ShowTimedMessage(fmt.Sprintf("Selected %s!", result.(string)), shortMessageDelay)
-			return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
+			selectedAction := result.(string)
+			switch selectedAction {
+				case ui.ClearIconName, ui.ClearWallpaperName, ui.ClearListWallpaperName:
+					// Needs activity here -> confirmation screen to delete file
+					utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", selectedAction), shortMessageDelay)
+					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
+				case ui.SelectIconName, ui.SelectWallpaperName, ui.SelectListWallpaperName:
+					state.AddNewMenuPosition()
+					return ui.InitDecorationBrowser(do.RomDirectoryList, do.ListWallpaperSelected, selectedAction, ui.DefaultDecorationBrowserIndex)
+				default:
+					utils.ShowTimedMessage(fmt.Sprintf("Unsupported action selected %s!\nReport bug please.", selectedAction), shortMessageDelay)
+					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
+			}
 		default:
 			state.RemoveMenuPositions(1)
 			if do.ListWallpaperSelected {
@@ -161,4 +179,37 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 			}
 			return ui.InitDirectoryBrowser(do.RomDirectoryList[:len(do.RomDirectoryList) - 1])
 	}
+}
+
+func handleDecorationBrowserTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	db := currentScreen.(ui.DecorationBrowser)
+	if db.DecorationBrowserIndex == ui.DefaultDecorationBrowserIndex {
+		switch code {
+			case utils.ExitCodeSelect:
+				state.AddNewMenuPosition()
+				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, result.(int))
+			case utils.ExitCodeAction:
+				state.UpdateCurrentMenuPosition(0, 0)
+				state.CycleAggregationMode()
+				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
+			default:
+				state.RemoveMenuPositions(1)
+				return ui.InitDecorationOptions(db.RomDirectoryList, db.ListWallpaperSelected)
+		}
+	}
+	decoration := result.(models.Decoration)
+	switch code {
+		case utils.ExitCodeSelect:
+			// Needs activity here -> confirmation screen to copy file
+			utils.ShowTimedMessage(fmt.Sprintf("Selected %s!", decoration.DecorationName), shortMessageDelay)
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, result.(int))
+		case utils.ExitCodeAction:
+			// Needs activity here -> confirmation screen to delete file
+			utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", decoration.DecorationName), shortMessageDelay)
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
+		default:
+			state.RemoveMenuPositions(1)
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, ui.DefaultDecorationBrowserIndex)
+	}
+	
 }

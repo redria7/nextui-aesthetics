@@ -7,6 +7,7 @@ import (
 	"os"
 	"sync"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/utils"
 )
 
 var appState atomic.Pointer[models.AppState]
@@ -32,6 +33,17 @@ func GetAppState() *models.AppState {
 		appState.Store(&models.AppState{})
 	})
 	return appState.Load()
+}
+
+func CycleAggregationMode() {
+	temp := GetAppState()
+	switch temp.Config.DecorationAggregationType {
+		case utils.AggregateByConsole:
+			temp.Config.DecorationAggregationType = utils.AggregateByDirectory
+		case utils.AggregateByDirectory:
+			temp.Config.DecorationAggregationType = utils.AggregateByConsole
+	}
+	UpdateAppState(temp)
 }
 
 func UpdateAppState(newAppState *models.AppState) {
@@ -110,6 +122,21 @@ func GetCurrentMenuPosition() (int, int) {
 	selectedPosition = max(0, selectedIndex-selectedPosition)
 
 	return selectedIndex, selectedPosition
+}
+
+func GetDecorationAggregation() ([]models.ConsoleAggregation, []models.DirectoryAggregation) {
+	temp := GetAppState()
+	if temp.DecorationsAggregatedOnConsoles == nil {
+		updateDecorationAggregations()
+		temp = GetAppState()
+	}
+	return temp.DecorationsAggregatedOnConsoles, temp.DecorationsAggregatedOnDirectories
+}
+
+func updateDecorationAggregations() {
+	temp := GetAppState()
+	temp.DecorationsAggregatedOnConsoles, temp.DecorationsAggregatedOnDirectories = utils.GenerateDecorationAggregations()
+	UpdateAppState(temp)
 }
 
 // func GetPlayMaps() (map[string][]models.PlayHistoryAggregate, map[string]int, int) {
