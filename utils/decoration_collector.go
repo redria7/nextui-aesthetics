@@ -21,7 +21,8 @@ func GenerateDecorationAggregations() (consoleAggregationList []models.ConsoleAg
 				consoleAggregation, 
 				directoryAggregation,
 				decorationSource.DirectoryPath,	// current path
-				decorationSource,	// soft parent
+				decorationSource,	// original parent
+				"", // soft parent path
 				"",	// hard parent path
 				"",	// hard console
 			)
@@ -78,7 +79,8 @@ func collectNestedDecorations(
 	consoleAggregation map[string]map[string][]models.Decoration, 
 	directoryAggregation map[string][]models.Decoration, 
 	currentPath string, 
-	softParent directorySource, 
+	originalParent directorySource, 
+	softParentPath string,
 	hardParentPath string, 
 	hardConsole string,
 ) (map[string]map[string][]models.Decoration, map[string][]models.Decoration) {
@@ -105,6 +107,10 @@ func collectNestedDecorations(
 		}
 	}
 
+	if softParentPath == "" && currentPath != originalParent.DirectoryPath {
+		softParentPath = currentPath
+	}
+
 	// All preconditions are checked for the current directory: check each entry and drill down in any child directories
 	for _, file := range files {
 		if file.IsDir() {
@@ -113,7 +119,8 @@ func collectNestedDecorations(
 				consoleAggregation, 
 				directoryAggregation,
 				filepath.Join(currentPath, file.Name()),	// current path
-				softParent,	// soft parent path
+				originalParent,	// original parent
+				softParentPath,	// soft parent path
 				hardParentPath,	// hard parent path, default ""
 				hardConsole,	// hard console, default ""
 			)
@@ -123,12 +130,18 @@ func collectNestedDecorations(
 			itemExt := filepath.Ext(itemName)
 			if itemExt == ".png" {
 				// Current file is a png. Valid decoration found. Create Decoration item and attach to maps
+				// Finalize soft parent
+				softParent := softParentPath
+				if softParent == "" {
+					softParent = originalParent.DirectoryPath
+				}
+
 				// Generate formal path
 				decorationPath := filepath.Join(currentPath, itemName)
 				
 				// Finalize console tag
 				consoleTag := hardConsole
-				if hardConsole == "" && softParent.FilenamesTagFree {
+				if hardConsole == "" && originalParent.FilenamesTagFree {
 					tempTag := findConsoleTag(itemName)
 					if tempTag != "" {
 						consoleTag = tempTag
@@ -145,7 +158,7 @@ func collectNestedDecorations(
 				}
 
 				// Finalize directory name
-				directoryName := filepath.Base(softParent.DirectoryPath)
+				directoryName := filepath.Base(softParent)
 				if hardParentPath != "" {
 					directoryName = directoryName + "/" + filepath.Base(hardParentPath)
 				}
@@ -153,13 +166,13 @@ func collectNestedDecorations(
 				// Generate decoration names for each aggregation
 				var directoryDecorationName string 
 				if hardParentPath == "" {
-					directoryDecorationName = strings.ReplaceAll(decorationPath, softParent.DirectoryPath, "")
+					directoryDecorationName = strings.ReplaceAll(decorationPath, softParent, "")
 				} else {
 					directoryDecorationName = strings.ReplaceAll(decorationPath, hardParentPath, "")
 				}
 				directoryDecorationName = strings.TrimPrefix(directoryDecorationName, "/")
 
-				consoleDecorationName := filepath.Base(softParent.DirectoryPath) + "/" + itemName
+				consoleDecorationName := filepath.Base(softParent) + "/" + itemName
 
 
 				// Generate decorations
