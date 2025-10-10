@@ -92,7 +92,7 @@ func collectNestedDecorations(
 	
 	// Determine console tag of current directory if possible
 	if hardConsole == "" {
-		hardConsole = findConsoleTag(currentPath)
+		hardConsole = FindConsoleTag(currentPath)
 	}
 
 	// If no hard parent found yet, scan files for any valid decorations. If some are found, set the current path as the hard parent path
@@ -142,7 +142,7 @@ func collectNestedDecorations(
 				// Finalize console tag
 				consoleTag := hardConsole
 				if hardConsole == "" && originalParent.FilenamesTagFree {
-					tempTag := findConsoleTag(itemName)
+					tempTag := FindConsoleTag(itemName)
 					if tempTag != "" {
 						consoleTag = tempTag
 					}
@@ -203,7 +203,7 @@ func collectNestedDecorations(
 	return consoleAggregation, directoryAggregation
 }
 
-func findConsoleTag(directoryPath string) string {
+func FindConsoleTag(directoryPath string) string {
 	re := regexp.MustCompile(`\(([^)]+)\)`)
 	match := re.FindStringSubmatch(directoryPath)
 	if len(match) > 1 {

@@ -1,19 +1,21 @@
 package main
 
 import (
+	"fmt"
+	"log"
+	"nextui-aesthetics/models"
+	"nextui-aesthetics/state"
+	"nextui-aesthetics/ui"
+	"nextui-aesthetics/utils"
+	"os"
+	"strings"
+	"time"
+
 	_ "github.com/UncleJunVIP/certifiable"
-	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"go.uber.org/zap"
-	"log"
-	"os"
-	"fmt"
-	"time"
-	"nextui-aesthetics/state"
-	"nextui-aesthetics/models"
-	"nextui-aesthetics/utils"
-	"nextui-aesthetics/ui"
 )
 
 const (
@@ -162,8 +164,22 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 			selectedAction := result.(string)
 			switch selectedAction {
 				case ui.ClearIconName, ui.ClearWallpaperName, ui.ClearListWallpaperName:
-					// Needs activity here -> confirmation screen to delete file
-					utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", selectedAction), shortMessageDelay)
+					currentDirectory := do.RomDirectoryList[len(do.RomDirectoryList) - 1]
+					_, currentPath, parentPath := utils.GetCurrentDecorationDetails(do.RomDirectoryList)
+					destinationPath := ""
+					switch selectedAction {
+						case ui.SelectIconName:
+							destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.DisplayName)
+						case ui.SelectWallpaperName:
+							destinationPath = utils.GetTrueWallpaperPath(currentPath)
+						case ui.SelectListWallpaperName:
+							destinationPath = utils.GetTrueListWallpaperPath(currentPath)
+					}
+					if confirmDeletion("Delete this decoration from roms media?", destinationPath) {
+						state.UpdateCurrentMenuPosition(0, 0)
+						common.DeleteFile(destinationPath)
+						utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", destinationPath), shortMessageDelay)
+					}
 					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
 				case ui.SelectIconName, ui.SelectWallpaperName, ui.SelectListWallpaperName:
 					state.AddNewMenuPosition()
@@ -230,7 +246,7 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		case ui.SelectListWallpaperName:
 			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 	}
-	message := "Copy image from:\n" + sourcePath + "\nto\n" + destinationPath + "\n?"
+	message := "Copy image from:\n" + splitPathToLines(sourcePath) + "\nto\n" + splitPathToLines(destinationPath) + "\n?"
 	if utils.ConfirmAction(message) {
 		err := utils.CopyFile(sourcePath, destinationPath)
 		if err != nil {
@@ -242,4 +258,27 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		return ui.InitDecorationOptions(romDirectoryList, listWallpaperSelected)
 	}
 	return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
+}
+
+func splitPathToLines(filePath string) string {
+	splitList := strings.Split(filePath, "/")
+	returnString := ""
+	for index, splitPhrase := range(splitList) {
+		returnString = returnString + "/" + splitPhrase
+		if (index + 1) % 3 == 0 {
+			returnString = returnString + "\n"
+		}
+	}
+	return returnString
+}
+
+func confirmDeletion(message, imagePath string) bool {
+	result, err := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
+		{ButtonName: "B", HelpText: "I Changed My Mind"},
+		{ButtonName: "A", HelpText: "Trash It!"},
+	}, gaba.MessageOptions{
+		ImagePath: imagePath,
+	})
+
+	return err == nil && result.IsSome()
 }

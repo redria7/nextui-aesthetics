@@ -43,16 +43,20 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 
 	// Add items to menu
 	var menuItems []gaba.MenuItem
+	var parentAggName string
 	aggregationType := state.GetAppState().Config.DecorationAggregationType
 	if aggregationType == utils.AggregateByConsole {
-		menuItems = db.genConsoleMenuItems()
+		menuItems, parentAggName = db.genConsoleMenuItems()
 	}
 	if aggregationType == utils.AggregateByDirectory {
-		menuItems = db.genDirectoryMenuItems()
+		menuItems, parentAggName = db.genDirectoryMenuItems()
 	}
 
 	// Set options
-	title := currentDirectory.DisplayName
+	title := db.DecorationType + " for " + currentDirectory.DisplayName 
+	if !topLevel {
+		title = title + " from " + parentAggName
+	}
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EmptyMessage = "No Decorations Found"
@@ -68,8 +72,8 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	selectText := "Apply"
 	actionText := "Delete"
 	if topLevel {
-		selectText = "View Decorations"
-		actionText = "Change Aggregation"
+		selectText = "Open"
+		actionText = "Swap Aggregation"
 	}
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
@@ -116,24 +120,38 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	return nil, utils.ExitCodeCancel, nil
 }
 
-func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem) {
+func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 	var menuItems []gaba.MenuItem
+	parentAggName := ""
 	decorationAggregation, _ := state.GetDecorationAggregation()
 	topLevel := false
 	if db.DecorationBrowserIndex == DefaultDecorationBrowserIndex {
 		topLevel = true
 	}
+	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 	if topLevel {
+		currentConsole := utils.FindConsoleTag(currentPath)
+		var nonCurrentConsoleList []gaba.MenuItem
 		for index, aggregate := range decorationAggregation {
-			menuItems = append(menuItems, gaba.MenuItem{
-				Text: aggregate.ConsoleName,
-				Selected: false,
-				Focused:  false,
-				Metadata: index,
-			})
+			if currentConsole != "" && aggregate.ConsoleTag == currentConsole {
+				menuItems = append(menuItems, gaba.MenuItem{
+					Text: aggregate.ConsoleName,
+					Selected: false,
+					Focused:  false,
+					Metadata: index,
+				})
+			} else {
+				nonCurrentConsoleList = append(nonCurrentConsoleList, gaba.MenuItem{
+					Text: aggregate.ConsoleName,
+					Selected: false,
+					Focused:  false,
+					Metadata: index,
+				})
+			}
 		}
+		menuItems = append(menuItems, nonCurrentConsoleList...)
 	} else {
-		_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
+		parentAggName = decorationAggregation[db.DecorationBrowserIndex].ConsoleName
 		currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
 			wallpaperPath := ""
@@ -158,17 +176,32 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem) {
 			})
 		}
 	}
-	return menuItems
+	return menuItems, parentAggName
 }
 
-func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem) {
+func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 	var menuItems []gaba.MenuItem
-	_, decorationAggregation := state.GetDecorationAggregation()
+	parentAggName := ""
+	consoleAggregation, decorationAggregation := state.GetDecorationAggregation()
 	topLevel := false
 	if db.DecorationBrowserIndex == DefaultDecorationBrowserIndex {
 		topLevel = true
 	}
+	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 	if topLevel {
+		currentConsole := utils.FindConsoleTag(currentPath)
+		if currentConsole != "" {
+			for index, aggregate := range consoleAggregation {
+				if aggregate.ConsoleTag == currentConsole {
+					menuItems = append(menuItems, gaba.MenuItem{
+						Text: aggregate.ConsoleName,
+						Selected: false,
+						Focused:  false,
+						Metadata: index,
+					})
+				}
+			}
+		}
 		for index, aggregate := range decorationAggregation {
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text: aggregate.DirectoryName,
@@ -178,7 +211,7 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem) {
 			})
 		}
 	} else {
-		_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
+		parentAggName = decorationAggregation[db.DecorationBrowserIndex].DirectoryName
 		currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
 			wallpaperPath := ""
@@ -203,5 +236,5 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem) {
 			})
 		}
 	}
-	return menuItems
+	return menuItems, parentAggName
 }
