@@ -127,7 +127,12 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 			exit_code = utils.ExitCodeSelect
 		}
 		if topLevel {
-			return metadata.(int), exit_code, nil
+			foundIndex := metadata.(int)
+			if foundIndex < 0 {
+				foundIndex = flipIndex(foundIndex)
+				db.AggregationOverride = true
+			}
+			return foundIndex, exit_code, nil
 		}
 		return metadata.(models.Decoration), exit_code, nil
 	}
@@ -229,9 +234,9 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 						Text: aggregate.ConsoleName,
 						Selected: false,
 						Focused:  false,
-						Metadata: index,
-					ImageFilename: currentIconPath,
-					BackgroundFilename: currentWallpaperPath,
+						Metadata: flipIndex(index),
+						ImageFilename: currentIconPath,
+						BackgroundFilename: currentWallpaperPath,
 					})
 				}
 			}
@@ -279,4 +284,11 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 		}
 	}
 	return menuItems, parentAggName
+}
+
+func flipIndex(index int) int {
+	if index >= 0 {
+		return (index * -1) - 1
+	}
+	return (index + 1) * -1
 }
