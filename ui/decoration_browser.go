@@ -18,20 +18,14 @@ type DecorationBrowser struct {
 	ListWallpaperSelected	bool
 	DecorationType			string
 	DecorationBrowserIndex	int
-	AggregationOverride		bool
 }
 
-func InitDecorationBrowser(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationbrowserIndex int, aggregationOverride bool) DecorationBrowser {
-	overrideLocal := false
-	if decorationbrowserIndex != DefaultDecorationBrowserIndex {
-		overrideLocal = aggregationOverride
-	}
+func InitDecorationBrowser(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationbrowserIndex int) DecorationBrowser {
 	return DecorationBrowser{
 		RomDirectoryList:	romDirectoryList,
 		ListWallpaperSelected:	listWallpaperSelected,
 		DecorationType: decorationType,
 		DecorationBrowserIndex: decorationbrowserIndex,
-		AggregationOverride: overrideLocal,
 	}
 }
 
@@ -127,12 +121,7 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 			exit_code = utils.ExitCodeSelect
 		}
 		if topLevel {
-			foundIndex := metadata.(int)
-			if foundIndex < 0 {
-				foundIndex = flipIndex(foundIndex)
-				db.AggregationOverride = true
-			}
-			return foundIndex, exit_code, nil
+			return metadata.(int), exit_code, nil
 		}
 		return metadata.(models.Decoration), exit_code, nil
 	}
@@ -253,9 +242,10 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 		}
 	} else {
 		var decorationList []models.Decoration
-		if db.AggregationOverride {
-			parentAggName = consoleAggregation[db.DecorationBrowserIndex].ConsoleName
-			decorationList = consoleAggregation[db.DecorationBrowserIndex].DecorationList
+		if db.DecorationBrowserIndex < 0 {
+			trueIndex := flipIndex(db.DecorationBrowserIndex)
+			parentAggName = consoleAggregation[trueIndex].ConsoleName
+			decorationList = consoleAggregation[trueIndex].DecorationList
 		} else {
 			parentAggName = decorationAggregation[db.DecorationBrowserIndex].DirectoryName
 			decorationList = decorationAggregation[db.DecorationBrowserIndex].DecorationList
@@ -288,7 +278,7 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 
 func flipIndex(index int) int {
 	if index >= 0 {
-		return (index * -1) - 1
+		return (index * -1) - 2
 	}
-	return (index + 1) * -1
+	return (index + 2) * -1
 }

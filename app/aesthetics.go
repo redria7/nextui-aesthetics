@@ -187,7 +187,7 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
 				case ui.SelectIconName, ui.SelectWallpaperName, ui.SelectListWallpaperName:
 					state.AddNewMenuPosition()
-					return ui.InitDecorationBrowser(do.RomDirectoryList, do.ListWallpaperSelected, selectedAction, ui.DefaultDecorationBrowserIndex, false)
+					return ui.InitDecorationBrowser(do.RomDirectoryList, do.ListWallpaperSelected, selectedAction, ui.DefaultDecorationBrowserIndex)
 				default:
 					utils.ShowTimedMessage(fmt.Sprintf("Unsupported action selected %s!\nReport bug please.", selectedAction), shortMessageDelay)
 					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
@@ -207,11 +207,11 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 		switch code {
 			case utils.ExitCodeSelect:
 				state.AddNewMenuPosition()
-				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, result.(int), db.AggregationOverride)
+				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, result.(int))
 			case utils.ExitCodeAction:
 				state.UpdateCurrentMenuPosition(0, 0)
 				state.CycleAggregationMode()
-				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, db.AggregationOverride)
+				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 			default:
 				state.RemoveMenuPositions(1)
 				return ui.InitDecorationOptions(db.RomDirectoryList, db.ListWallpaperSelected)
@@ -219,7 +219,7 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 	}
 	switch code {
 		case utils.ExitCodeSelect:
-			return copyFile(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, db.AggregationOverride, result.(models.Decoration))
+			return copyFile(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, result.(models.Decoration))
 		case utils.ExitCodeAction:
 			decoration := result.(models.Decoration)
 			// if confirmDeletion("Delete this beautiful art?", existingArtPath) {
@@ -227,14 +227,14 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			// }
 			// Needs activity here -> confirmation screen to delete file
 			utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", decoration.DecorationName), shortMessageDelay)
-			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, db.AggregationOverride)
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 		default:
 			state.RemoveMenuPositions(1)
-			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, ui.DefaultDecorationBrowserIndex, db.AggregationOverride)
+			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, ui.DefaultDecorationBrowserIndex)
 	}
 }
 
-func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationBrowserIndex int, aggregationOverride bool, decoration models.Decoration) models.Screen {
+func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationBrowserIndex int, decoration models.Decoration) models.Screen {
 	currentDirectory := romDirectoryList[len(romDirectoryList) - 1]
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(romDirectoryList)
 	sourcePath := decoration.DecorationPath
@@ -255,13 +255,13 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		err := utils.CopyFile(sourcePath, destinationPath)
 		if err != nil {
 			utils.ShowTimedMessage("Unable to copy image!", longMessageDelay)
-			return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex, aggregationOverride)
+			return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
 		}
 		utils.ShowTimedMessage("Image copied successfully!", shortMessageDelay)
 		state.RemoveMenuPositions(2)
 		return ui.InitDecorationOptions(romDirectoryList, listWallpaperSelected)
 	}
-	return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex, aggregationOverride)
+	return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
 }
 
 func splitPathToLines(filePath string) string {
