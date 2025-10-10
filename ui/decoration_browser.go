@@ -18,14 +18,20 @@ type DecorationBrowser struct {
 	ListWallpaperSelected	bool
 	DecorationType			string
 	DecorationBrowserIndex	int
+	AggregationOverride		bool
 }
 
-func InitDecorationBrowser(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationbrowserIndex int) DecorationBrowser {
+func InitDecorationBrowser(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool, decorationType string, decorationbrowserIndex int, aggregationOverride bool) DecorationBrowser {
+	overrideLocal := false
+	if decorationbrowserIndex != DefaultDecorationBrowserIndex {
+		overrideLocal = aggregationOverride
+	}
 	return DecorationBrowser{
 		RomDirectoryList:	romDirectoryList,
 		ListWallpaperSelected:	listWallpaperSelected,
 		DecorationType: decorationType,
 		DecorationBrowserIndex: decorationbrowserIndex,
+		AggregationOverride: overrideLocal,
 	}
 }
 
@@ -241,8 +247,15 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 			})
 		}
 	} else {
-		parentAggName = decorationAggregation[db.DecorationBrowserIndex].DirectoryName
-		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
+		var decorationList []models.Decoration
+		if db.AggregationOverride {
+			parentAggName = consoleAggregation[db.DecorationBrowserIndex].ConsoleName
+			decorationList = consoleAggregation[db.DecorationBrowserIndex].DecorationList
+		} else {
+			parentAggName = decorationAggregation[db.DecorationBrowserIndex].DirectoryName
+			decorationList = decorationAggregation[db.DecorationBrowserIndex].DecorationList
+		}
+		for _, decoration := range decorationList {
 			wallpaperPath := ""
 			iconPath := ""
 			switch db.DecorationType {
