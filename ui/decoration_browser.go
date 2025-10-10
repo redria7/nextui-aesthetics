@@ -53,9 +53,18 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	}
 
 	// Set options
-	title := db.DecorationType + " for " + currentDirectory.DisplayName 
+	var decorationTypeName string
+	switch db.DecorationType {
+		case SelectIconName:
+			decorationTypeName = "Icon"
+		case SelectWallpaperName:
+			decorationTypeName = "Wallpaper"
+		case SelectListWallpaperName:
+			decorationTypeName = "List Wallpaper"
+	}
+	title := currentDirectory.DisplayName + ": " + decorationTypeName
 	if !topLevel {
-		title = title + " from " + parentAggName
+		title = parentAggName
 	}
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
@@ -129,6 +138,13 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 		topLevel = true
 	}
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
+	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
+	currentWallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
+	currentIconPath := utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+	if db.DecorationType == SelectListWallpaperName {
+		currentIconPath = ""
+		currentWallpaperPath = utils.GetListWallpaperPath(currentPath)
+	}
 	if topLevel {
 		currentConsole := utils.FindConsoleTag(currentPath)
 		var nonCurrentConsoleList []gaba.MenuItem
@@ -139,6 +155,8 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 					Selected: false,
 					Focused:  false,
 					Metadata: index,
+					ImageFilename: currentIconPath,
+					BackgroundFilename: currentWallpaperPath,
 				})
 			} else {
 				nonCurrentConsoleList = append(nonCurrentConsoleList, gaba.MenuItem{
@@ -146,22 +164,23 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 					Selected: false,
 					Focused:  false,
 					Metadata: index,
+					ImageFilename: currentIconPath,
+					BackgroundFilename: currentWallpaperPath,
 				})
 			}
 		}
 		menuItems = append(menuItems, nonCurrentConsoleList...)
 	} else {
 		parentAggName = decorationAggregation[db.DecorationBrowserIndex].ConsoleName
-		currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
 			wallpaperPath := ""
 			iconPath := ""
 			switch db.DecorationType {
 				case SelectIconName:
 					iconPath = decoration.DecorationPath
-					wallpaperPath = utils.GetWallpaperPath(currentPath, parentPath)
+					wallpaperPath = currentWallpaperPath
 				case SelectWallpaperName:
-					iconPath = utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+					iconPath = currentIconPath
 					wallpaperPath = decoration.DecorationPath
 				case SelectListWallpaperName:
 					wallpaperPath = decoration.DecorationPath
@@ -188,6 +207,13 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 		topLevel = true
 	}
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
+	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
+	currentWallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
+	currentIconPath := utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+	if db.DecorationType == SelectListWallpaperName {
+		currentIconPath = ""
+		currentWallpaperPath = utils.GetListWallpaperPath(currentPath)
+	}
 	if topLevel {
 		currentConsole := utils.FindConsoleTag(currentPath)
 		if currentConsole != "" {
@@ -198,6 +224,8 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 						Selected: false,
 						Focused:  false,
 						Metadata: index,
+					ImageFilename: currentIconPath,
+					BackgroundFilename: currentWallpaperPath,
 					})
 				}
 			}
@@ -208,20 +236,21 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 				Selected: false,
 				Focused:  false,
 				Metadata: index,
+				ImageFilename: currentIconPath,
+				BackgroundFilename: currentWallpaperPath,
 			})
 		}
 	} else {
 		parentAggName = decorationAggregation[db.DecorationBrowserIndex].DirectoryName
-		currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 		for _, decoration := range decorationAggregation[db.DecorationBrowserIndex].DecorationList {
 			wallpaperPath := ""
 			iconPath := ""
 			switch db.DecorationType {
 				case SelectIconName:
 					iconPath = decoration.DecorationPath
-					wallpaperPath = utils.GetWallpaperPath(currentPath, parentPath)
+					wallpaperPath = currentWallpaperPath
 				case SelectWallpaperName:
-					iconPath = utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+					iconPath = currentIconPath
 					wallpaperPath = decoration.DecorationPath
 				case SelectListWallpaperName:
 					wallpaperPath = decoration.DecorationPath

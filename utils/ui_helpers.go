@@ -12,11 +12,13 @@ func ShowTimedMessage(message string, delay time.Duration) {
 	})
 }
 
-func ConfirmAction(message string) bool {
+func ConfirmAction(message string, imagePath string) bool {
 	result, err := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "I Changed My Mind"},
 		{ButtonName: "A", HelpText: "Yes"},
-	}, gaba.MessageOptions{})
+	}, gaba.MessageOptions{
+		ImagePath: imagePath,
+	})
 
 	return err == nil && result.IsSome()
 }

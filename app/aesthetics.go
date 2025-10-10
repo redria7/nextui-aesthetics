@@ -168,17 +168,21 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 					_, currentPath, parentPath := utils.GetCurrentDecorationDetails(do.RomDirectoryList)
 					destinationPath := ""
 					switch selectedAction {
-						case ui.SelectIconName:
+						case ui.ClearIconName:
 							destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.DisplayName)
-						case ui.SelectWallpaperName:
+						case ui.ClearWallpaperName:
 							destinationPath = utils.GetTrueWallpaperPath(currentPath)
-						case ui.SelectListWallpaperName:
+						case ui.ClearListWallpaperName:
 							destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 					}
-					if confirmDeletion("Delete this decoration from roms media?", destinationPath) {
+					if confirmDeletion("Delete this decoration from roms media:\n" + splitPathToLines(destinationPath), destinationPath) {
 						state.UpdateCurrentMenuPosition(0, 0)
-						common.DeleteFile(destinationPath)
-						utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", destinationPath), shortMessageDelay)
+						res := common.DeleteFile(destinationPath)
+						if res {
+							utils.ShowTimedMessage(fmt.Sprintf("Deleted:\n%s", splitPathToLines(destinationPath)), shortMessageDelay)
+						} else {
+							utils.ShowTimedMessage(fmt.Sprintf("Failed to delete:%s", splitPathToLines(destinationPath)), shortMessageDelay)
+						}
 					}
 					return ui.InitDecorationOptions(do.RomDirectoryList, do.ListWallpaperSelected)
 				case ui.SelectIconName, ui.SelectWallpaperName, ui.SelectListWallpaperName:
@@ -246,8 +250,8 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		case ui.SelectListWallpaperName:
 			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 	}
-	message := "Copy image from:\n" + splitPathToLines(sourcePath) + "\nto\n" + splitPathToLines(destinationPath) + "\n?"
-	if utils.ConfirmAction(message) {
+	message := "Copy image from:\n" + splitPathToLines(sourcePath) + "\nto\n" + splitPathToLines(destinationPath)
+	if utils.ConfirmAction(message, sourcePath) {
 		err := utils.CopyFile(sourcePath, destinationPath)
 		if err != nil {
 			utils.ShowTimedMessage("Unable to copy image!", longMessageDelay)
@@ -262,14 +266,30 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 
 func splitPathToLines(filePath string) string {
 	splitList := strings.Split(filePath, "/")
-	returnString := ""
-	for index, splitPhrase := range(splitList) {
-		returnString = returnString + "/" + splitPhrase
-		if (index + 1) % 3 == 0 {
-			returnString = returnString + "\n"
+	widthList := []string{""}
+	for _, splitPhrase := range(splitList) {
+		if splitPhrase != "" {
+			currentPhrase := widthList[len(widthList) - 1]
+			newPhrase := ""
+			if currentPhrase == "" {
+				currentPhrase = splitPhrase
+			} else {
+				curLen := len(currentPhrase)
+				newLen := len(splitPhrase)
+				if curLen + newLen > 40 {
+					currentPhrase = currentPhrase + "/"
+					newPhrase = splitPhrase
+				} else {
+					currentPhrase = currentPhrase + "/" + splitPhrase
+				}
+			}
+			widthList[len(widthList) - 1] = currentPhrase
+			if newPhrase != "" {
+				widthList = append(widthList, newPhrase)
+			}
 		}
 	}
-	return returnString
+	return strings.Join(widthList, "\n")
 }
 
 func confirmDeletion(message, imagePath string) bool {
