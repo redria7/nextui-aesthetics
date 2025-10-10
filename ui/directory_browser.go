@@ -87,6 +87,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	options.SmallTitle = true
 	options.EnableAction = true
 	options.EnableImages = true
+	options.NoBackground = true
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
