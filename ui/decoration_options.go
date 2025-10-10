@@ -111,7 +111,6 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 	title := currentDirectory.DisplayName
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.EnableImages = true
-	options.SwapImages = true
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
