@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sort"
 	"nextui-aesthetics/models"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 )
 
 const (
@@ -111,6 +113,14 @@ func collectNestedDecorations(
 		softParentPath = currentPath
 	}
 
+	// Prep filebrowser list of files for checking .media matches
+	logger := common.GetLoggerInstance()
+	fb := filebrowser.NewFileBrowser(logger)
+	fbSuccess := true
+	if err := fb.CWD(filepath.Dir(currentPath), false); err != nil {
+		fbSuccess = false
+	}
+
 	// All preconditions are checked for the current directory: check each entry and drill down in any child directories
 	for _, file := range files {
 		if file.IsDir() {
@@ -128,7 +138,26 @@ func collectNestedDecorations(
 			// Current file is not a directory. Evaluate.
 			itemName := file.Name()
 			itemExt := filepath.Ext(itemName)
-			if itemExt == ".png" {
+			// Build conditions
+			isDecoration := itemExt == ".png"
+			isPreview := itemName == "preview.png"
+			isMedia := filepath.Base(currentPath) == ".media"
+			isMediaBg := isMedia && itemName == "bg.png"
+			isMediaBgList := isMedia && itemName == "bglist.png"
+			isIcon := false
+			if isDecoration && isMedia && !isMediaBg && !isMediaBgList && fbSuccess {
+				// see if .media png is used as an icon for another non-rom folder
+				for _, item := range fb.Items {
+					if item.DisplayName == strings.TrimSuffix(itemName, filepath.Ext(itemName)) {
+						// Match found. Check item info and tag as icon if true
+						if item.IsDirectory && !item.IsSelfContainedDirectory {
+							isIcon = true
+						}
+						break
+					}
+				}
+			}
+			if isDecoration && !isPreview && !isMediaBg && !isMediaBgList && !isIcon {
 				// Current file is a png. Valid decoration found. Create Decoration item and attach to maps
 				// Finalize soft parent
 				softParent := softParentPath

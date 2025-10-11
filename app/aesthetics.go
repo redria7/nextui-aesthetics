@@ -222,11 +222,57 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			return copyFile(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex, result.(models.Decoration))
 		case utils.ExitCodeAction:
 			decoration := result.(models.Decoration)
-			// if confirmDeletion("Delete this beautiful art?", existingArtPath) {
-			// 	common.DeleteFile(existingArtPath)
-			// }
-			// Needs activity here -> confirmation screen to delete file
-			utils.ShowTimedMessage(fmt.Sprintf("Deleted %s!", decoration.DecorationName), shortMessageDelay)
+			if confirmDeletion("Delete this decoration from:\n" + splitPathToLines(decoration.DecorationPath), decoration.DecorationPath) {
+				res := common.DeleteFile(decoration.DecorationPath)
+				if res {
+					// Successful file deletion. Clear from aggregations
+					// TODO: Possibly run additional logic checks to change selected item state?
+					consoleAggregation, decorationAggregation := state.GetDecorationAggregation()
+					shouldBreak := false
+					for index, agg := range consoleAggregation {
+						if decoration.ConsoleName == agg.ConsoleName {
+							for subIndex, dec := range agg.DecorationList {
+								if decoration.DecorationName == dec.DecorationName {
+									agg.DecorationList = append(agg.DecorationList[:subIndex], agg.DecorationList[subIndex+1:]...)
+									consoleAggregation[index] = agg
+									if len(agg.DecorationList) == 0 {
+										consoleAggregation = append(consoleAggregation[:index], consoleAggregation[index+1:]...)
+									}
+									shouldBreak = true
+									break
+								}
+							}
+							if shouldBreak {
+								break
+							}
+						}
+					}
+					shouldBreak = false
+					for index, agg := range decorationAggregation {
+						if decoration.DirectoryName == agg.DirectoryName {
+							for subIndex, dec := range agg.DecorationList {
+								if decoration.DecorationName == dec.DecorationName {
+									agg.DecorationList = append(agg.DecorationList[:subIndex], agg.DecorationList[subIndex+1:]...)
+									decorationAggregation[index] = agg
+									if len(agg.DecorationList) == 0 {
+										decorationAggregation = append(decorationAggregation[:index], decorationAggregation[index+1:]...)
+									}
+									shouldBreak = true
+									break
+								}
+							}
+							if shouldBreak {
+								break
+							}
+						}
+					}
+					utils.ShowTimedMessage(fmt.Sprintf("Deleted:\n%s", splitPathToLines(decoration.DecorationPath)), shortMessageDelay)
+				} else {
+					utils.ShowTimedMessage(fmt.Sprintf("Failed to delete:%s", splitPathToLines(decoration.DecorationPath)), shortMessageDelay)
+				}
+			}
+
+			// where do we return to?
 			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 		default:
 			state.RemoveMenuPositions(1)

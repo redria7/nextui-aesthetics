@@ -18,7 +18,7 @@ const (
 var DecorationSources = []directorySource{
 	directorySource{DirectoryPath: "/mnt/SDCARD/Tools/tg5040/Theme-Manager.pak/Themes", FilenamesTagFree: true},
 	directorySource{DirectoryPath: "/mnt/SDCARD/Screenshots", FilenamesTagFree: false},
-	//directorySource{DirectoryPath: "/mnt/SDCARD/Roms", FilenamesTagFree: true},
+	directorySource{DirectoryPath: "/mnt/SDCARD/Roms", FilenamesTagFree: false},
 }
 
 type directorySource struct {
