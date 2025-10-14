@@ -5,9 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"sort"
+	"os"
 	"nextui-aesthetics/models"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 )
 
 const (
@@ -113,14 +112,6 @@ func collectNestedDecorations(
 		softParentPath = currentPath
 	}
 
-	// Prep filebrowser list of files for checking .media matches
-	logger := common.GetLoggerInstance()
-	fb := filebrowser.NewFileBrowser(logger)
-	fbSuccess := true
-	if err := fb.CWD(filepath.Dir(currentPath), false); err != nil {
-		fbSuccess = false
-	}
-
 	// All preconditions are checked for the current directory: check each entry and drill down in any child directories
 	for _, file := range files {
 		if file.IsDir() {
@@ -144,20 +135,24 @@ func collectNestedDecorations(
 			isMedia := filepath.Base(currentPath) == ".media"
 			isMediaBg := isMedia && itemName == "bg.png"
 			isMediaBgList := isMedia && itemName == "bglist.png"
-			isIcon := false
-			if isDecoration && isMedia && !isMediaBg && !isMediaBgList && fbSuccess {
-				// see if .media png is used as an icon for another non-rom folder
-				for _, item := range fb.Items {
-					if item.DisplayName == strings.TrimSuffix(itemName, filepath.Ext(itemName)) {
-						// Match found. Check item info and tag as icon if true
-						if item.IsDirectory && !item.IsSelfContainedDirectory {
-							isIcon = true
-						}
-						break
+			isFolderIcon := true
+			// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
+			if isDecoration && isMedia && !isMediaBg && !isMediaBgList {
+				immediateParent := filepath.Dir(currentPath)
+				itemBase := strings.TrimSuffix(itemName, itemExt)
+				iconTarget := filepath.Join(immediateParent, itemBase)
+				stats, err := os.Stat(iconTarget)
+				if err != nil || !stats.IsDir() {
+					isFolderIcon = false
+				} else {
+					iconChildPattern := filepath.Join(iconTarget, itemBase + ".*")
+					matches, err := filepath.Glob(iconChildPattern)
+					if err != nil || len(matches) == 0 {
+						isFolderIcon = false
 					}
 				}
 			}
-			if isDecoration && !isPreview && !isMediaBg && !isMediaBgList && !isIcon {
+			if isDecoration && !isPreview && !isMediaBg && !isMediaBgList && !isFolderIcon {
 				// Current file is a png. Valid decoration found. Create Decoration item and attach to maps
 				// Finalize soft parent
 				softParent := softParentPath

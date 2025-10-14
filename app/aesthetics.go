@@ -175,7 +175,7 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 						case ui.ClearListWallpaperName:
 							destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 					}
-					if confirmDeletion("Delete this decoration from roms media:\n" + splitPathToLines(destinationPath), destinationPath) {
+					if confirmDeletion("Clear this decoration from:\n" + splitPathToLines(destinationPath), destinationPath) {
 						state.UpdateCurrentMenuPosition(0, 0)
 						res := common.DeleteFile(destinationPath)
 						if res {
@@ -271,8 +271,6 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 					utils.ShowTimedMessage(fmt.Sprintf("Failed to delete:%s", splitPathToLines(decoration.DecorationPath)), shortMessageDelay)
 				}
 			}
-
-			// where do we return to?
 			return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 		default:
 			state.RemoveMenuPositions(1)
@@ -296,7 +294,8 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		case ui.SelectListWallpaperName:
 			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 	}
-	message := "Copy image from:\n" + splitPathToLines(sourcePath) + "\nto\n" + splitPathToLines(destinationPath)
+	// message := "Copy image from:\n" + splitPathToLines(sourcePath) + "\nto\n" + splitPathToLines(destinationPath)
+	message := "Copy image to:\n" + splitPathToLines(destinationPath)
 	if utils.ConfirmAction(message, sourcePath) {
 		err := utils.CopyFile(sourcePath, destinationPath)
 		if err != nil {
