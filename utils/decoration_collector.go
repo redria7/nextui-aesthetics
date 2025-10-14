@@ -135,20 +135,18 @@ func collectNestedDecorations(
 			isMedia := filepath.Base(currentPath) == ".media"
 			isMediaBg := isMedia && itemName == "bg.png"
 			isMediaBgList := isMedia && itemName == "bglist.png"
-			isFolderIcon := true
+			isFolderIcon := false
 			// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 			if isDecoration && isMedia && !isMediaBg && !isMediaBgList {
 				immediateParent := filepath.Dir(currentPath)
 				itemBase := strings.TrimSuffix(itemName, itemExt)
 				iconTarget := filepath.Join(immediateParent, itemBase)
 				stats, err := os.Stat(iconTarget)
-				if err != nil || !stats.IsDir() {
-					isFolderIcon = false
-				} else {
+				if err == nil && stats.IsDir() {
 					iconChildPattern := filepath.Join(iconTarget, itemBase + ".*")
 					matches, err := filepath.Glob(iconChildPattern)
-					if err != nil || len(matches) == 0 {
-						isFolderIcon = false
+					if err == nil && len(matches) == 0 {
+						isFolderIcon = true
 					}
 				}
 			}
