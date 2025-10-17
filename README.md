@@ -46,8 +46,11 @@ Download, Apply, Clear, and Export Aesthetic Properties: Theme management with U
 
 ## How should manually added themes be added and formatted?
 
-First, ensure the Themes directory exists in the expected location on your SD Card: .userdata/shared/Aesthetics/Themes
+First, ensure the Themes directory exists in the expected location on your SD Card: 
+- .userdata/shared/Aesthetics/Themes
+
 Themes should be saved in a non-zip format with a top level directory indicating the name of the theme (Themes/YourCoolTheme).
+
 Inside your theme directory, save your .png files inside directories indicating their intended purpose. Currently downloadable themes usually use:
 - CollectionIcons
 - SystemIcons
