@@ -290,6 +290,7 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			case utils.ExitCodeAction:
 				state.UpdateCurrentMenuPosition(0, 0)
 				state.CycleAggregationMode()
+				utils.SaveConfig(state.GetAppState().Config)
 				return ui.InitDecorationBrowser(db.RomDirectoryList, db.ListWallpaperSelected, db.DecorationType, db.DecorationBrowserIndex)
 			default:
 				state.RemoveMenuPositions(1)
