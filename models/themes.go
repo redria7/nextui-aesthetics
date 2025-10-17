@@ -5,6 +5,7 @@ import (
 )
 
 type Theme struct {
+	ThemeName		string
 	ThemePath		string
 	PreviewFound	bool
 	ContainsTheme	bool

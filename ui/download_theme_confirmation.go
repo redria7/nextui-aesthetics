@@ -42,7 +42,7 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 	))
 	sections = append(sections, gaba.NewImageSection(
 		"",
-		utils.GetPreviewPath(dtc.Theme.PreviewPath),
+		utils.GetPreviewPath(dtc.Theme.ThemeName),
 		int32(256),
 		int32(256),
 		gaba.TextAlignCenter,
@@ -80,9 +80,13 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 	}
 
 	// Process successful results
-	if sel.IsNone() {
-		return nil, utils.ExitCodeCancel, nil
+	if sel.IsSome() {
+		exit_code := utils.ExitCodeAction
+		if !sel.Unwrap().ActionTriggered {
+			exit_code = utils.ExitCodeSelect
+		}
+		return nil, exit_code, nil
 	}
 
-	return nil, utils.ExitCodeSelect, nil
+	return nil, utils.ExitCodeCancel, nil
 }

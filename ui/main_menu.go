@@ -10,7 +10,8 @@ import (
 
 const (
 	DownloadThemesDisplayName	= "Download Themes"
-	DecorationsDisplayName 		= "Library Decorations"
+	ManageThemesDisplayName		= "Manage Themes"
+	DecorationsDisplayName 		= "Set Wallpapers & Icons"
 )
 
 type MainMenu struct{}
@@ -33,6 +34,12 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 		Selected: false,
 		Focused:  false,
 		Metadata: DownloadThemesDisplayName,
+	})
+	menuItems = append(menuItems, gaba.MenuItem{
+		Text:     ManageThemesDisplayName,
+		Selected: false,
+		Focused:  false,
+		Metadata: ManageThemesDisplayName,
 	})
 	menuItems = append(menuItems, gaba.MenuItem{
 		Text:     DecorationsDisplayName,

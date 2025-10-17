@@ -98,6 +98,8 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 			return handleDownloadThemesBrowserTransition(currentScreen, result, code)
 		case models.ScreenNames.DownloadThemeConfirmation:
 			return handleDownloadThemeConfirmationTransition(currentScreen, result, code)
+		case models.ScreenNames.ManageThemes:
+			return handleManageThemesTransition(result, code)
 		case models.ScreenNames.DirectoryBrowser:
 			return handleDirectoryBrowserTransition(currentScreen, result, code)
 		case models.ScreenNames.DecorationOptions:
@@ -125,12 +127,35 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 					}})
 				case ui.DownloadThemesDisplayName:
 					return ui.InitDownloadThemesBrowser(false)
+				case ui.ManageThemesDisplayName:
+					return ui.InitManageThemes()
 			}
 		case utils.ExitCodeAction:
 			return ui.InitSettingsScreen()
 		case utils.ExitCodeError, utils.ExitCodeCancel:
 			os.Exit(0)
 			return nil
+	}
+	state.ReturnToMain()
+	return ui.InitMainMenu()
+}
+
+func handleManageThemesTransition(result interface{}, code int) models.Screen {
+	switch code {
+		case utils.ExitCodeSelect:
+			// TODO: add actual theme management
+			return ui.InitManageThemes()
+		case utils.ExitCodeAction:
+			theme := result.(models.Theme)
+			if confirmDeletion("Delete theme: " + theme.ThemeName + "?", utils.GetPreviewPath(theme.ThemeName)) {
+				res := common.DeleteFile(theme.ThemePath)
+				if res {
+					utils.ShowTimedMessage("Deleted " + theme.ThemeName, shortMessageDelay)
+				} else {
+					utils.ShowTimedMessage("Failed to delete " + theme.ThemeName, shortMessageDelay)
+				}
+			}
+			return ui.InitManageThemes()
 	}
 	state.ReturnToMain()
 	return ui.InitMainMenu()

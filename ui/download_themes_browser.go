@@ -113,6 +113,16 @@ func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 	options.EnableImages = true
 	options.EnableAction = true
 	options.SmallTitle = true
+	options.EmptyMessage = "No themes hidden!"
+
+	// Set Help
+	options.EnableHelp = true
+	options.HelpTitle = "Downloadable Themes"
+	options.HelpText = []string{
+		"If no entries are found, check internet connection",
+		"• A: View details of a theme with option to download",
+		"• X: Move theme in/out of hidden status",
+	}
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()

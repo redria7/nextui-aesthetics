@@ -39,10 +39,12 @@ func (do DecorationOptions) Name() sum.Int[models.ScreenName] {
 func (do DecorationOptions) Draw() (interface{}, int, error) {
 	topLevel, currentPath, parentPath := utils.GetCurrentDecorationDetails(do.RomDirectoryList)
 	currentDirectory := do.RomDirectoryList[len(do.RomDirectoryList) - 1]
+	title := currentDirectory.DisplayName
 
 	// Add items to menu
 	var menuItems []gaba.MenuItem
 	if do.ListWallpaperSelected {
+		title = title + " List Options"
 		wallpaperPath := utils.GetListWallpaperPath(currentPath)
 		clearName := ClearListWallpaperName
 		selectName := SelectListWallpaperName
@@ -67,6 +69,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 				BackgroundFilename: wallpaperPath,
 			})
 	} else {
+		title = title + " Decoration Options"
 		wallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
 		iconPath := utils.GetIconPath(parentPath, currentDirectory.DisplayName)
 		if utils.CheckWallpaperPath(currentPath) {
@@ -108,8 +111,8 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 	}
 
 	// Set options
-	title := currentDirectory.DisplayName
 	options := gaba.DefaultListOptions(title, menuItems)
+	options.SmallTitle = true
 	options.EnableImages = true
 
 	// Set index

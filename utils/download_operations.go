@@ -324,15 +324,21 @@ func GetDownloadedThemes() map[string]models.Theme {
 		themePath := filepath.Join(ThemeLibrary, theme.Name())
 		themePreview := DoesFileExists(filepath.Join(themePath, previewStandardName))
 		themeHiddenPreview := DoesFileExists(filepath.Join(themePath, previewHiddenName))
+		baseThemeCount := 0
+		if themePreview {
+			baseThemeCount++
+		}
 		if themeHiddenPreview {
+			baseThemeCount++
 			themePreview = true
 		}
 		themeDownloaded := false
 		themeContents, err := GetFileList(themePath)
-		if err == nil && len(themeContents) > 1 {
+		if err == nil && len(themeContents) > baseThemeCount {
 			themeDownloaded = true
 		}
 		themeMap[themeName] = models.Theme{
+			ThemeName: themeName,
 			ThemePath: themePath,
 			PreviewFound: themePreview,
 			ContainsTheme: themeDownloaded,
