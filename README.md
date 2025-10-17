@@ -55,4 +55,5 @@ Inside your theme directory, save your .png files inside directories indicating 
 - CollectionWallpapers
 - ListWallpapers
 - SystemWallpapers
+
 Also ensure your image files contain a system tag like (GB) matching the tags used in NextUI to benefit from console grouping.
