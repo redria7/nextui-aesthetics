@@ -14,6 +14,12 @@ const (
 	ToolsDirectory	= "/mnt/SDCARD/Tools/tg5040"
 	AggregateByConsole	= 0
 	AggregateByDirectory	= 1
+	CollectionsDisplayName 			= "Collections"
+	CollectionsTag         			= "Collections"
+	RecentlyPlayedName				= "Recently Played"
+	RecentlyPlayedTag				= "Recently Played"
+	ToolsName						= "Tools"
+	ToolsTag						= "tg5040"
 )
 
 var DecorationSources = []directorySource{

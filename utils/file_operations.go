@@ -98,9 +98,17 @@ func GetTrueListWallpaperPath(itemPath string) string {
 }
 
 func GetIconPath(parentPath string, itemName string) string {
-	if itemName == "Tools" {
+	if itemName == ToolsName || itemName == ToolsTag {
 		parentPath = "/mnt/SDCARD/Tools"
-		itemName = "tg5040"
+		itemName = ToolsTag
+	}
+	if itemName == RecentlyPlayedName || itemName == RecentlyPlayedTag {
+		parentPath = "/mnt/SDCARD"
+		itemName = RecentlyPlayedTag
+	}
+	if itemName == CollectionsDisplayName || itemName == CollectionsTag {
+		parentPath = "/mnt/SDCARD"
+		itemName = CollectionsTag
 	}
 	actualIconPath := genIconPath(parentPath, itemName)
 	if DoesFileExists(actualIconPath) {

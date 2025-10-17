@@ -13,12 +13,6 @@ import (
 )
 
 const (
-	CollectionsDisplayName 			= "Collections"
-	CollectionsTag         			= "Collections"
-	RecentlyPlayedName				= "Recently Played"
-	RecentlyPlayedTag				= "Recently Played"
-	ToolsName						= "Tools"
-	ToolsTag						= "tg5040"
 	DefaultListWallpaper			= "List Wallpaper"
 	mainListWallpaper				= "Default Wallpaper"
 	ExitCodeDefaultListWallpaper	= 5
@@ -64,15 +58,15 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 			menuItems = append(menuItems, *collectionsItem)
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     RecentlyPlayedName,
+			Text:     utils.RecentlyPlayedName,
 			Selected: false,
 			Focused:  false,
 			Metadata: shared.RomDirectory{
-				DisplayName: RecentlyPlayedName,
-				Tag:         RecentlyPlayedTag,
+				DisplayName: utils.RecentlyPlayedName,
+				Tag:         utils.RecentlyPlayedTag,
 				Path:        utils.RecentlyPlayedDirectory,
 			},
-			ImageFilename: utils.GetIconPath(parentPath, RecentlyPlayedName),
+			ImageFilename: utils.GetIconPath(parentPath, utils.RecentlyPlayedName),
 			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, parentPath),
 		})
 	}
@@ -86,15 +80,15 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 	// 		Add tools at the end if main menu
 	if topLevel {
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ToolsName,
+			Text:     utils.ToolsName,
 			Selected: false,
 			Focused:  false,
 			Metadata: shared.RomDirectory{
-				DisplayName: ToolsName,
-				Tag:         ToolsTag,
+				DisplayName: utils.ToolsName,
+				Tag:         utils.ToolsTag,
 				Path:        utils.ToolsDirectory,
 			},
-			ImageFilename: utils.GetIconPath(parentPath, ToolsName),
+			ImageFilename: utils.GetIconPath(parentPath, utils.ToolsName),
 			BackgroundFilename: utils.GetWallpaperPath(utils.ToolsDirectory, parentPath),
 		})
 	}
@@ -164,15 +158,15 @@ func buildCollectionsMenuItem(parentPath string, logger *zap.Logger) *gaba.MenuI
 	}
 
 	return &gaba.MenuItem{
-		Text:     CollectionsDisplayName,
+		Text:     utils.CollectionsDisplayName,
 		Selected: false,
 		Focused:  false,
 		Metadata: shared.RomDirectory{
-			DisplayName: CollectionsDisplayName,
-			Tag:         CollectionsTag,
+			DisplayName: utils.CollectionsDisplayName,
+			Tag:         utils.CollectionsTag,
 			Path:        common.CollectionDirectory,
 		},
-		ImageFilename: utils.GetIconPath(parentPath, CollectionsDisplayName),
+		ImageFilename: utils.GetIconPath(parentPath, utils.CollectionsDisplayName),
 		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, parentPath),
 	}
 }
