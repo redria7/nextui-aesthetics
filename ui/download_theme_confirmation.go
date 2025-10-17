@@ -81,8 +81,8 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 
 	// Process successful results
 	if sel.IsNone() {
-		return nil, utils.ExitCodeSelect, nil
+		return nil, utils.ExitCodeCancel, nil
 	}
 
-	return nil, utils.ExitCodeCancel, nil
+	return nil, utils.ExitCodeSelect, nil
 }

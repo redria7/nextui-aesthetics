@@ -159,8 +159,6 @@ func UpdateThemeCatalog() {
 		if exists {
 			if !themeStatus.PreviewFound {
 				themesNeedingPreviews = append(themesNeedingPreviews, theme)
-			}
-			if !themeStatus.ContainsTheme {
 				themeCatalog[index].IsNew = true
 			}
 		} else {

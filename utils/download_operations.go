@@ -11,6 +11,7 @@ import (
 	"sort"
 	"nextui-aesthetics/models"
 	"os"
+	"time"
 	"errors"
 	"archive/zip"
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
@@ -24,39 +25,6 @@ const (
 	catalogURL = "https://raw.githubusercontent.com/Leviathanium/NextUI-Themes/main/Catalog/catalog.json"
 	previewURLPrefix = "https://raw.githubusercontent.com/Leviathanium/NextUI-Themes/main/"
 )
-
-// func UnzipPakArchive(pak models.Pak, tmp string) error {
-// 	pakDestination := ""
-
-// 	if pak.IsPakZ {
-// 		pakDestination = GetSDRoot()
-// 	} else if pak.PakType == models.PakTypes.TOOL {
-// 		pakDestination = filepath.Join(GetToolRoot(), pak.Name+".pak")
-// 	} else if pak.PakType == models.PakTypes.EMU {
-// 		pakDestination = filepath.Join(GetEmulatorRoot(), pak.Name+".pak")
-// 	}
-
-// 	_, err := gaba.ProcessMessage(fmt.Sprintf("%s %s...", "Unzipping", pak.StorefrontName), gaba.ProcessMessageOptions{}, func() (interface{}, error) {
-// 		err := Unzip(tmp, pakDestination, pak, false)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		time.Sleep(1 * time.Second)
-
-// 		return nil, nil
-// 	})
-
-// 	if err != nil {
-// 		gaba.ProcessMessage(fmt.Sprintf("Unable to unzip %s", pak.StorefrontName), gaba.ProcessMessageOptions{}, func() (interface{}, error) {
-// 			time.Sleep(3 * time.Second)
-// 			return nil, nil
-// 		})
-// 		return err
-// 	}
-
-// 	return nil
-// }
 
 func extractThemeZip(zipPath, destDir string) error {
 	logger := common.GetLoggerInstance()
@@ -210,12 +178,15 @@ func DownloadTheme(theme models.ThemeSummary) error {
 	EnsureDirectoryExists(themePath)
 
 	// Extract the ZIP file
-	err = extractThemeZip(tmp, themePath)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	_, err = gaba.ProcessMessage("Unzipping " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+		err = extractThemeZip(tmp, themePath)
+		if err != nil {
+			return nil, err
+		}
+		time.Sleep(1 * time.Second)
+		return nil, nil
+	})
+	return err
 }
 
 func downloadThemeZip(theme models.ThemeSummary) (tempFile string, completed bool, error error) {
