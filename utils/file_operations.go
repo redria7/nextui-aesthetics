@@ -97,7 +97,33 @@ func GetTrueListWallpaperPath(itemPath string) string {
 	return genListWallpaperPath(itemPath)
 }
 
-func GetIconPath(parentPath string, itemName string) string {
+func GetIconPath(parentPath string, itemPath string) string {
+	actualIconPath := genIconPath(parentPath, itemPath)
+	if DoesFileExists(actualIconPath) {
+		return actualIconPath
+	}
+	return ""
+}
+
+func CheckIconPath(parentPath string, itemPath string) bool {
+	actualIconPath := genIconPath(parentPath, itemPath)
+	return DoesFileExists(actualIconPath)
+}
+
+func GetTrueIconPath(parentPath string, itemPath string) string {
+	return genIconPath(parentPath, itemPath)
+}
+
+func genWallpaperPath(itemPath string) string {
+	return itemPath + "/.media/bg.png"
+}
+
+func genListWallpaperPath(itemPath string) string {
+	return itemPath + "/.media/bglist.png"
+}
+
+func genIconPath(parentPath string, itemPath string) string {
+	itemName := GetSimpleFileName(itemPath)
 	if itemName == ToolsName || itemName == ToolsTag {
 		parentPath = "/mnt/SDCARD/Tools"
 		itemName = ToolsTag
@@ -110,31 +136,6 @@ func GetIconPath(parentPath string, itemName string) string {
 		parentPath = "/mnt/SDCARD"
 		itemName = CollectionsTag
 	}
-	actualIconPath := genIconPath(parentPath, itemName)
-	if DoesFileExists(actualIconPath) {
-		return actualIconPath
-	}
-	return ""
-}
-
-func CheckIconPath(parentPath string, itemName string) bool {
-	actualIconPath := genIconPath(parentPath, itemName)
-	return DoesFileExists(actualIconPath)
-}
-
-func GetTrueIconPath(parentPath string, itemName string) string {
-	return genIconPath(parentPath, itemName)
-}
-
-func genWallpaperPath(itemPath string) string {
-	return itemPath + "/.media/bg.png"
-}
-
-func genListWallpaperPath(itemPath string) string {
-	return itemPath + "/.media/bglist.png"
-}
-
-func genIconPath(parentPath string, itemName string) string {
 	return parentPath + "/.media/" + itemName + ".png"
 }
 

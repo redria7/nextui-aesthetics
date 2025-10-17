@@ -66,7 +66,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Tag:         utils.RecentlyPlayedTag,
 				Path:        utils.RecentlyPlayedDirectory,
 			},
-			ImageFilename: utils.GetIconPath(parentPath, utils.RecentlyPlayedName),
+			ImageFilename: utils.GetIconPath(parentPath, utils.RecentlyPlayedDirectory),
 			BackgroundFilename: utils.GetWallpaperPath(utils.RecentlyPlayedDirectory, parentPath),
 		})
 	}
@@ -88,7 +88,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Tag:         utils.ToolsTag,
 				Path:        utils.ToolsDirectory,
 			},
-			ImageFilename: utils.GetIconPath(parentPath, utils.ToolsName),
+			ImageFilename: utils.GetIconPath(parentPath, utils.ToolsDirectory),
 			BackgroundFilename: utils.GetWallpaperPath(utils.ToolsDirectory, parentPath),
 		})
 	}
@@ -166,7 +166,7 @@ func buildCollectionsMenuItem(parentPath string, logger *zap.Logger) *gaba.MenuI
 			Tag:         utils.CollectionsTag,
 			Path:        common.CollectionDirectory,
 		},
-		ImageFilename: utils.GetIconPath(parentPath, utils.CollectionsDisplayName),
+		ImageFilename: utils.GetIconPath(parentPath, utils.GetCollectionDirectory()),
 		BackgroundFilename: utils.GetWallpaperPath(common.CollectionDirectory, parentPath),
 	}
 }
@@ -192,7 +192,7 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 				Selected: false,
 				Focused:  false,
 				Metadata: romDirectory,
-				ImageFilename: utils.GetIconPath(currentDirectory.Path, utils.GetSimpleFileName(romDirectory.Path)),
+				ImageFilename: utils.GetIconPath(currentDirectory.Path, romDirectory.Path),
 				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, currentDirectory.Path),
 			}
 			menuItems = append(menuItems, menuItem)

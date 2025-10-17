@@ -71,7 +71,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 	} else {
 		title = title + " Decoration Options"
 		wallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
-		iconPath := utils.GetIconPath(parentPath, utils.GetSimpleFileName(currentDirectory.Path))
+		iconPath := utils.GetIconPath(parentPath, currentDirectory.Path)
 		if utils.CheckWallpaperPath(currentPath) {
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     ClearWallpaperName,
@@ -90,7 +90,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 				ImageFilename: iconPath,
 				BackgroundFilename: wallpaperPath,
 			})
-		if utils.CheckIconPath(parentPath, currentDirectory.DisplayName) {
+		if utils.CheckIconPath(parentPath, currentDirectory.Path) {
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     ClearIconName,
 				Selected: false,

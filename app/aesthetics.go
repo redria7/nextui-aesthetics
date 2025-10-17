@@ -248,7 +248,7 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 					destinationPath := ""
 					switch selectedAction {
 						case ui.ClearIconName:
-							destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.DisplayName)
+							destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.Path)
 						case ui.ClearWallpaperName:
 							destinationPath = utils.GetTrueWallpaperPath(currentPath)
 						case ui.ClearListWallpaperName:
@@ -362,12 +362,12 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(romDirectoryList)
 	sourcePath := decoration.DecorationPath
 	destinationPath := ""
-	utils.CheckIconPath(parentPath, utils.GetSimpleFileName(currentDirectory.Path))
+	utils.CheckIconPath(parentPath, currentDirectory.Path)
 	utils.CheckWallpaperPath(currentPath)
 	utils.CheckListWallpaperPath(currentPath)
 	switch decorationType {
 		case ui.SelectIconName:
-			destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.DisplayName)
+			destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.Path)
 		case ui.SelectWallpaperName:
 			destinationPath = utils.GetTrueWallpaperPath(currentPath)
 		case ui.SelectListWallpaperName:
