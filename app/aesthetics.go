@@ -362,7 +362,7 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(romDirectoryList)
 	sourcePath := decoration.DecorationPath
 	destinationPath := ""
-	utils.CheckIconPath(parentPath, currentDirectory.DisplayName)
+	utils.CheckIconPath(parentPath, utils.GetSimpleFileName(currentDirectory.Path))
 	utils.CheckWallpaperPath(currentPath)
 	utils.CheckListWallpaperPath(currentPath)
 	switch decorationType {

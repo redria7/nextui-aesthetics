@@ -141,7 +141,7 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 	currentWallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
-	currentIconPath := utils.GetIconPath(parentPath, filepath.Base(currentDirectory.Path))
+	currentIconPath := utils.GetIconPath(parentPath, utils.GetSimpleFileName(currentDirectory.Path))
 	if db.DecorationType == SelectListWallpaperName {
 		currentIconPath = ""
 		currentWallpaperPath = utils.GetListWallpaperPath(currentPath)

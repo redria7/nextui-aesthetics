@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
@@ -174,6 +175,11 @@ func CopyFile(sourcePath, destinationPath string) error {
 	}
 
 	return nil
+}
+
+func GetSimpleFileName(fullPath string) string {
+	itemWithExt := filepath.Base(fullPath)
+	return strings.TrimSuffix(itemWithExt, filepath.Ext(itemWithExt))
 }
 
 // func DeleteRom(game shared.Item, romDirectory shared.RomDirectory) {
