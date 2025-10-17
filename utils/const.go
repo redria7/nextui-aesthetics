@@ -11,6 +11,7 @@ const (
 	ExitCodeCancel           = 2
 	ExitCodeError         = -1
 	RecentlyPlayedDirectory = "/mnt/SDCARD/Recently Played"
+	ToolsDirectory	= "/mnt/SDCARD/Tools/tg5040"
 	AggregateByConsole	= 0
 	AggregateByDirectory	= 1
 )

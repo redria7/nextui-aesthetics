@@ -17,6 +17,8 @@ const (
 	CollectionsTag         			= "Collections"
 	RecentlyPlayedName				= "Recently Played"
 	RecentlyPlayedTag				= "Recently Played"
+	ToolsName						= "Tools"
+	ToolsTag						= "tg5040"
 	DefaultListWallpaper			= "List Wallpaper"
 	mainListWallpaper				= "Default Wallpaper"
 	ExitCodeDefaultListWallpaper	= 5
@@ -80,6 +82,22 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		return nil, utils.ExitCodeError, err
 	}
 	menuItems = append(menuItems, romItems...)
+
+	// 		Add tools at the end if main menu
+	if topLevel {
+		menuItems = append(menuItems, gaba.MenuItem{
+			Text:     ToolsName,
+			Selected: false,
+			Focused:  false,
+			Metadata: shared.RomDirectory{
+				DisplayName: ToolsName,
+				Tag:         ToolsTag,
+				Path:        utils.ToolsDirectory,
+			},
+			ImageFilename: utils.GetIconPath(parentPath, ToolsTag),
+			BackgroundFilename: utils.GetWallpaperPath(utils.ToolsDirectory, parentPath),
+		})
+	}
 
 	// Set options
 	title := currentDirectory.DisplayName
