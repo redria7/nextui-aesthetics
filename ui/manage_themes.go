@@ -47,6 +47,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	options.SmallTitle = true
 	options.EnableAction = true
 	options.EmptyMessage = "No themes to delete! Go download some!"
+	options.EnableImages = true
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()

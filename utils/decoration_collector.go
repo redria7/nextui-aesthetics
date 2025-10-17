@@ -101,7 +101,7 @@ func collectNestedDecorations(
 		for _, file := range files {
 			itemName := file.Name()
 			itemExt := filepath.Ext(itemName)
-			if itemExt == ".png" && itemName != "preview.png" {
+			if itemExt == ".png" && itemName != previewStandardName && itemName != previewHiddenName{
 				hardParentPath = currentPath
 				break
 			}
@@ -131,7 +131,7 @@ func collectNestedDecorations(
 			itemExt := filepath.Ext(itemName)
 			// Build conditions
 			isDecoration := itemExt == ".png"
-			isPreview := itemName == "preview.png"
+			isPreview := itemName == previewStandardName || itemName == previewHiddenName
 			isMedia := filepath.Base(currentPath) == ".media"
 			isMediaBg := isMedia && itemName == "bg.png"
 			isMediaBgList := isMedia && itemName == "bglist.png"

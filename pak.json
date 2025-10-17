@@ -2,7 +2,7 @@
   "name": "Aesthetics",
   "version": "v1.0.0",
   "type": "TOOL",
-  "description": "A one-stop pak for all your game management needs.",
+  "description": "Download, Apply, Clear, and Export Aesthetic Properties: Theme management with Ultimate Control!",
   "author": "redria7",
   "repo_url": "https://github.com/redria7/nextui-aesthetics",
   "release_filename": "Aesthetics.pak.zip",
@@ -10,7 +10,7 @@
     "BRICK": ".github/resources/banner.png"
   },
   "changelog": {
-    "v1.0.0": "Aesthetics launch, featuring theme downloads and wallpaper application"
+    "v1.0.0": "Aesthetics launch, featuring theme downloads, theme deletion, and wallpaper/icon management"
   },
   "platforms": [
     "tg5040"

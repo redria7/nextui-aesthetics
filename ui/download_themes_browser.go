@@ -30,6 +30,7 @@ func (dtb DownloadThemesBrowser) Name() sum.Int[models.ScreenName] {
 
 func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 	// Collect lists of themes available from the catalog, sorted into downloaded, new, and not downloaded buckets
+	title := "Downloadable Themes"
 	themeCatalog := state.GetThemeCatalog()
 	currentThemes := utils.GetDownloadedThemes()
 	var newThemes []gaba.MenuItem
@@ -103,12 +104,13 @@ func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 
 		})
 	} else {
+		title = "Hidden Themes"
 		menuItems = append(menuItems, hiddenThemes...)
 	}
 	
 
 	// Set options
-	title := "Downloadable Themes"
+	
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.EnableImages = true
 	options.EnableAction = true

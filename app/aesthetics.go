@@ -68,6 +68,8 @@ func main() {
 	logger := common.GetLoggerInstance()
 	logger.Info("Starting Aesthetics")
 
+	utils.EnsureDirectoryExists(utils.ThemeLibrary)
+
 	runApplicationLoop()
 }
 

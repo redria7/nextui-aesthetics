@@ -11,7 +11,6 @@ import (
 	"sort"
 	"nextui-aesthetics/models"
 	"os"
-	"time"
 	"errors"
 	"archive/zip"
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
@@ -183,7 +182,7 @@ func DownloadTheme(theme models.ThemeSummary) error {
 		if err != nil {
 			return nil, err
 		}
-		time.Sleep(1 * time.Second)
+		//time.Sleep(1 * time.Second)
 		return nil, nil
 	})
 	return err
