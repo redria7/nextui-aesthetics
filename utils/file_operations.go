@@ -1,13 +1,13 @@
 package utils
 
 import (
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"go.uber.org/zap"
-	"fmt"
-	"os"
-	"io"
-	"path/filepath"
 )
 
 func GetFileList(dirPath string) ([]os.DirEntry, error) {
@@ -97,8 +97,9 @@ func GetTrueListWallpaperPath(itemPath string) string {
 }
 
 func GetIconPath(parentPath string, itemName string) string {
-	if itemName == "tg5040" {
-		parentPath = parentPath + "/Tools"
+	if itemName == "Tools" {
+		parentPath = "/mnt/SDCARD/Tools"
+		itemName = "tg5040"
 	}
 	actualIconPath := genIconPath(parentPath, itemName)
 	if DoesFileExists(actualIconPath) {

@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"path/filepath"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
@@ -140,7 +141,7 @@ func (db DecorationBrowser) genConsoleMenuItems() ([]gaba.MenuItem, string) {
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 	currentWallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
-	currentIconPath := utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+	currentIconPath := utils.GetIconPath(parentPath, filepath.Base(currentDirectory.Path))
 	if db.DecorationType == SelectListWallpaperName {
 		currentIconPath = ""
 		currentWallpaperPath = utils.GetListWallpaperPath(currentPath)
@@ -209,7 +210,7 @@ func (db DecorationBrowser) genDirectoryMenuItems() ([]gaba.MenuItem, string) {
 	_, currentPath, parentPath := utils.GetCurrentDecorationDetails(db.RomDirectoryList)
 	currentDirectory := db.RomDirectoryList[len(db.RomDirectoryList) - 1]
 	currentWallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
-	currentIconPath := utils.GetIconPath(parentPath, currentDirectory.DisplayName)
+	currentIconPath := utils.GetIconPath(parentPath, filepath.Base(currentDirectory.Path))
 	if db.DecorationType == SelectListWallpaperName {
 		currentIconPath = ""
 		currentWallpaperPath = utils.GetListWallpaperPath(currentPath)

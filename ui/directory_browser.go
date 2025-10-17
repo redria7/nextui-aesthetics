@@ -10,6 +10,7 @@ import (
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 	"qlova.tech/sum"
+	"path/filepath"
 )
 
 const (
@@ -94,7 +95,7 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 				Tag:         ToolsTag,
 				Path:        utils.ToolsDirectory,
 			},
-			ImageFilename: utils.GetIconPath(parentPath, ToolsTag),
+			ImageFilename: utils.GetIconPath(parentPath, ToolsName),
 			BackgroundFilename: utils.GetWallpaperPath(utils.ToolsDirectory, parentPath),
 		})
 	}
@@ -198,7 +199,7 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 				Selected: false,
 				Focused:  false,
 				Metadata: romDirectory,
-				ImageFilename: utils.GetIconPath(currentDirectory.Path, romDirectory.DisplayName),
+				ImageFilename: utils.GetIconPath(currentDirectory.Path, filepath.Base(romDirectory.Path)),
 				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, currentDirectory.Path),
 			}
 			menuItems = append(menuItems, menuItem)
