@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	DecorationsDisplayName = "Library Decorations"
+	DownloadThemesDisplayName	= "Download Themes"
+	DecorationsDisplayName 		= "Library Decorations"
 )
 
 type MainMenu struct{}
@@ -27,6 +28,12 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 
 	// Add items to menu
 	var menuItems []gaba.MenuItem
+	menuItems = append(menuItems, gaba.MenuItem{
+		Text:     DownloadThemesDisplayName,
+		Selected: false,
+		Focused:  false,
+		Metadata: DownloadThemesDisplayName,
+	})
 	menuItems = append(menuItems, gaba.MenuItem{
 		Text:     DecorationsDisplayName,
 		Selected: false,

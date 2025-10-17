@@ -139,6 +139,40 @@ func updateDecorationAggregations() {
 	UpdateAppState(temp)
 }
 
+func GetThemeCatalog() []models.ThemeSummary {
+	temp := GetAppState()
+	if temp.ThemeCatalog == nil {
+		UpdateThemeCatalog()
+		temp = GetAppState()
+	}
+	return temp.ThemeCatalog
+}
+
+func UpdateThemeCatalog() {
+	temp := GetAppState()
+	themeCatalog := utils.GenerateThemeCatalog()
+	currentThemes := utils.GetDownloadedThemes()
+	// If an item on the list is not currently downloaded, or if it has no preview.png, then pull the preview.png file
+	var themesNeedingPreviews []models.ThemeSummary
+	for index, theme := range themeCatalog {
+		themeStatus, exists := currentThemes[theme.ThemeName]
+		if exists {
+			if !themeStatus.PreviewFound {
+				themesNeedingPreviews = append(themesNeedingPreviews, theme)
+			}
+			if !themeStatus.ContainsTheme {
+				themeCatalog[index].IsNew = true
+			}
+		} else {
+			themesNeedingPreviews = append(themesNeedingPreviews, theme)
+			themeCatalog[index].IsNew = true
+		}
+	}
+	utils.DownloadThemePreviews(themesNeedingPreviews)
+	temp.ThemeCatalog = themeCatalog
+	UpdateAppState(temp)
+}
+
 // func GetPlayMaps() (map[string][]models.PlayHistoryAggregate, map[string]int, int) {
 // 	temp := GetAppState()
 // 	if temp.GamePlayMap == nil {

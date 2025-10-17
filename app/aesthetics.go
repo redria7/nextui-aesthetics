@@ -94,6 +94,10 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 		case models.ScreenNames.Settings:
 			state.ReturnToMain()
 			return ui.InitMainMenu()
+		case models.ScreenNames.DownloadThemesBrowser:
+			return handleDownloadThemesBrowserTransition(currentScreen, result, code)
+		case models.ScreenNames.DownloadThemeConfirmation:
+			return handleDownloadThemeConfirmationTransition(currentScreen, result, code)
 		case models.ScreenNames.DirectoryBrowser:
 			return handleDirectoryBrowserTransition(currentScreen, result, code)
 		case models.ScreenNames.DecorationOptions:
@@ -110,14 +114,17 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 	switch code {
 		case utils.ExitCodeSelect:
 			state.AddNewMenuPosition()
-			romDir := result.(string)
-			if romDir == ui.DecorationsDisplayName {
-				return ui.InitDirectoryBrowser([]shared.RomDirectory{
-					shared.RomDirectory{
-						DisplayName: "Main Menu",
-						Tag:         "Main Menu",
-						Path:        utils.GetRomDirectory(),
-				}})
+			subMenu := result.(string)
+			switch subMenu {
+				case ui.DecorationsDisplayName:
+					return ui.InitDirectoryBrowser([]shared.RomDirectory{
+						shared.RomDirectory{
+							DisplayName: "Main Menu",
+							Tag:         "Main Menu",
+							Path:        utils.GetRomDirectory(),
+					}})
+				case ui.DownloadThemesDisplayName:
+					return ui.InitDownloadThemesBrowser(false)
 			}
 		case utils.ExitCodeAction:
 			return ui.InitSettingsScreen()
@@ -127,6 +134,51 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 	}
 	state.ReturnToMain()
 	return ui.InitMainMenu()
+}
+
+func handleDownloadThemesBrowserTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	dtb := currentScreen.(ui.DownloadThemesBrowser)
+
+	switch code {
+		case utils.ExitCodeSelect:
+			return ui.InitDownloadThemeConfirmation(dtb.ShowHiddenThemes, result.(models.ThemeSummary))
+		case utils.ExitCodeAction:
+			utils.SwapHiddenState(result.(models.ThemeSummary))
+			return ui.InitDownloadThemesBrowser(dtb.ShowHiddenThemes)
+		case ui.ExitCodeSpecialResult:
+			switch result.(string) {
+				case ui.RefreshCatalogName:
+					state.UpdateThemeCatalog()
+					return ui.InitDownloadThemesBrowser(dtb.ShowHiddenThemes)
+				case ui.ShowHiddenThemesName:
+					state.AddNewMenuPosition()
+					return ui.InitDownloadThemesBrowser(true)
+				default:
+					return ui.InitDownloadThemesBrowser(dtb.ShowHiddenThemes)
+			}
+		case utils.ExitCodeCancel:
+			if dtb.ShowHiddenThemes {
+				state.RemoveMenuPositions(1)
+				return ui.InitDownloadThemesBrowser(false)
+			}
+	}
+	state.ReturnToMain()
+	return ui.InitMainMenu()
+}
+
+func handleDownloadThemeConfirmationTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	dtc := currentScreen.(ui.DownloadThemeConfirmation)
+	
+	switch code {
+		case utils.ExitCodeSelect:
+			err := utils.DownloadTheme(dtc.Theme)
+			if err != nil {
+				utils.ShowTimedMessage(fmt.Sprintf("Failed to download or unzip %s:\n%s", dtc.Theme.ThemeType, dtc.Theme.ThemeName), shortMessageDelay)
+			}
+			return ui.InitDownloadThemesBrowser(dtc.ShowHiddenThemes)
+		default:
+			return ui.InitDownloadThemesBrowser(dtc.ShowHiddenThemes)
+	}
 }
 
 func handleDirectoryBrowserTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {

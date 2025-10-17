@@ -6,6 +6,8 @@ type ScreenName struct {
 	DirectoryBrowser,
 	DecorationOptions,
 	DecorationBrowser,
+	DownloadThemesBrowser,
+	DownloadThemeConfirmation,
 
 	Settings,
 	MainMenu sum.Int[ScreenName]

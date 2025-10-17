@@ -12,6 +12,8 @@ type AppState struct {
 	DecorationsAggregatedOnConsoles []ConsoleAggregation
 	DecorationsAggregatedOnDirectories []DirectoryAggregation
 
+	ThemeCatalog	[]ThemeSummary
+
 	// GamePlayMap 	map[string][]PlayHistoryAggregate
 	// ConsolePlayMap 	map[string]int
 	// TotalPlay 		int
@@ -46,4 +48,16 @@ type ConsoleAggregation struct {
 type DirectoryAggregation struct {
 	DirectoryName	string
 	DecorationList 	[]Decoration
+}
+
+type ThemeSummary struct {
+	ThemeName	string
+	PreviewPath	string
+	Author		string
+	Description	string
+	ZipPath		string
+	LastUpdated	string
+	IsNew		bool
+	ThemeType	string
+	// preview ratio?
 }

@@ -51,14 +51,14 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 				Text: "Decoration Aggregation",
 			},
 			Options: []gabagool.Option{
-				{DisplayName: "On Console", Value: utils.AggregateByConsole},
 				{DisplayName: "On Directory", Value: utils.AggregateByDirectory},
+				{DisplayName: "On Console", Value: utils.AggregateByConsole},
 			},
 			SelectedOption: func() int {
 				switch appState.Config.LogLevel {
-				case "CONSOLE":
-					return 0
 				case "DIRECTORY":
+					return 0
+				case "CONSOLE":
 					return 1
 				}
 				return 0
