@@ -62,27 +62,28 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 			})
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
-				Text:     selectName,
-				Selected: false,
-				Focused:  false,
-				Metadata: SelectListWallpaperName,
-				BackgroundFilename: wallpaperPath,
-			})
+			Text:     selectName,
+			Selected: false,
+			Focused:  false,
+			Metadata: SelectListWallpaperName,
+			BackgroundFilename: wallpaperPath,
+		})
 	} else {
 		title = title + " Decoration Options"
 		wallpaperPath := utils.GetWallpaperPath(currentPath, parentPath)
 		iconPath := utils.GetIconPath(parentPath, currentDirectory.Path)
-		if utils.CheckWallpaperPath(currentPath) {
+		if !utils.CheckIfCollectionTxtChild(currentDirectory.Path) {
+			if utils.CheckWallpaperPath(currentPath) {
+				menuItems = append(menuItems, gaba.MenuItem{
+					Text:     ClearWallpaperName,
+					Selected: false,
+					Focused:  false,
+					Metadata: ClearWallpaperName,
+					ImageFilename: iconPath,
+					BackgroundFilename: wallpaperPath,
+				})
+			}
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearWallpaperName,
-				Selected: false,
-				Focused:  false,
-				Metadata: ClearWallpaperName,
-				ImageFilename: iconPath,
-				BackgroundFilename: wallpaperPath,
-			})
-		}
-		menuItems = append(menuItems, gaba.MenuItem{
 				Text:     SelectWallpaperName,
 				Selected: false,
 				Focused:  false,
@@ -90,6 +91,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 				ImageFilename: iconPath,
 				BackgroundFilename: wallpaperPath,
 			})
+		}
 		if utils.CheckIconPath(parentPath, currentDirectory.Path) {
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     ClearIconName,
@@ -101,13 +103,13 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 			})
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SelectIconName,
-				Selected: false,
-				Focused:  false,
-				Metadata: SelectIconName,
-				ImageFilename: iconPath,
-				BackgroundFilename: wallpaperPath,
-			})
+			Text:     SelectIconName,
+			Selected: false,
+			Focused:  false,
+			Metadata: SelectIconName,
+			ImageFilename: iconPath,
+			BackgroundFilename: wallpaperPath,
+		})
 	}
 
 	// Set options
