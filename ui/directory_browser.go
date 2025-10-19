@@ -136,7 +136,8 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		if metadata == DefaultListWallpaper {
 			return nil, ExitCodeDefaultListWallpaper, nil
 		}
-		if !selection.Unwrap().ActionTriggered {
+		selectedDirectory := metadata.(shared.RomDirectory)
+		if !selection.Unwrap().ActionTriggered && !utils.CheckIfCollectionTxtChild(selectedDirectory.Path) {
 			exit_code = utils.ExitCodeSelect
 		}
 		return metadata.(shared.RomDirectory), exit_code, nil
