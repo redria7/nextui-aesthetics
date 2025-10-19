@@ -2,6 +2,8 @@ package utils
 
 import (
 	"os"
+	"path/filepath"
+	"strings"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 )
@@ -33,4 +35,8 @@ func CreateRomDirectoryFromItem(item shared.Item) shared.RomDirectory {
 		Tag:         item.Tag,
 		Path:        item.Path,
 	}
+}
+
+func CheckIfCollectionTxtChild(itemPath string) bool {
+	return filepath.Ext(filepath.Base(itemPath)) == ".txt" && strings.HasPrefix(itemPath, GetCollectionDirectory())
 }

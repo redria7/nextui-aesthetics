@@ -1,14 +1,14 @@
 package ui
 
 import (
-	gaba "github.com/redria7/gabagool/pkg/gabagool"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
-	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
-	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
-	"go.uber.org/zap"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
+	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
+	gaba "github.com/redria7/gabagool/pkg/gabagool"
+	"go.uber.org/zap"
 	"qlova.tech/sum"
 )
 
@@ -136,7 +136,8 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 		if metadata == DefaultListWallpaper {
 			return nil, ExitCodeDefaultListWallpaper, nil
 		}
-		if !selection.Unwrap().ActionTriggered {
+		selectedDirectory := metadata.(shared.RomDirectory)
+		if !selection.Unwrap().ActionTriggered && !utils.CheckIfCollectionTxtChild(selectedDirectory.Path) {
 			exit_code = utils.ExitCodeSelect
 		}
 		return metadata.(shared.RomDirectory), exit_code, nil
@@ -174,6 +175,11 @@ func buildCollectionsMenuItem(parentPath string, logger *zap.Logger) *gaba.MenuI
 func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *zap.Logger) ([]gaba.MenuItem, error) {
 	fb := filebrowser.NewFileBrowser(logger)
 
+	// If collection txt file, return empty
+	if utils.CheckIfCollectionTxtChild(currentDirectory.Path) {
+		return []gaba.MenuItem{}, nil
+	}
+
 	// TODO: check user settings for hide empty
 	// if err := fb.CWD(utils.GetRomDirectory(), state.GetAppState().Config.HideEmpty); err != nil {
 	if err := fb.CWD(currentDirectory.Path, true); err != nil {
@@ -185,7 +191,7 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 	// Add every non-self-contained-game, non-empty folder to the list
 	var menuItems []gaba.MenuItem
 	for _, item := range fb.Items {
-		if item.IsDirectory && !item.IsSelfContainedDirectory {
+		if (item.IsDirectory && !item.IsSelfContainedDirectory) || (utils.CheckIfCollectionTxtChild(item.Path)) {
 			romDirectory := utils.CreateRomDirectoryFromItem(item)
 			menuItem := gaba.MenuItem{
 				Text:     romDirectory.DisplayName,

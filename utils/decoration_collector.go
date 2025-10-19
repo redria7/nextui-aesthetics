@@ -92,8 +92,10 @@ func collectNestedDecorations(
 	}
 	
 	// Determine console tag of current directory if possible
+	portsFolder := false
 	if hardConsole == "" {
 		hardConsole = FindConsoleTag(currentPath)
+		portsFolder = (hardConsole == "(PORTS)" && originalParent.DirectoryPath == "/mnt/SDCARD/Roms")
 	}
 
 	// If no hard parent found yet, scan files for any valid decorations. If some are found, set the current path as the hard parent path
@@ -114,7 +116,7 @@ func collectNestedDecorations(
 
 	// All preconditions are checked for the current directory: check each entry and drill down in any child directories
 	for _, file := range files {
-		if file.IsDir() {
+		if file.IsDir() && (!portsFolder || file.Name() == ".media") {
 			// Current file is a directory, pass current settings and drill down
 			consoleAggregation, directoryAggregation = collectNestedDecorations(
 				consoleAggregation, 
