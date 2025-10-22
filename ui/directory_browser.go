@@ -176,7 +176,7 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 	fb := filebrowser.NewFileBrowser(logger)
 
 	// If collection txt file, return empty
-	if utils.CheckIfCollectionTxtChild(currentDirectory.Path) {
+	if utils.CheckIfCollectionTxtChild(currentDirectory.Path) || utils.CheckIfToolsChild(currentDirectory.Path) {
 		return []gaba.MenuItem{}, nil
 	}
 
