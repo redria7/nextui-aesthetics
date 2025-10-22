@@ -40,3 +40,7 @@ func CreateRomDirectoryFromItem(item shared.Item) shared.RomDirectory {
 func CheckIfCollectionTxtChild(itemPath string) bool {
 	return filepath.Ext(filepath.Base(itemPath)) == ".txt" && strings.HasPrefix(itemPath, GetCollectionDirectory())
 }
+
+func CheckIfToolsChild(itemPath string) bool {
+	return strings.HasPrefix(itemPath, ToolsDirectory) && (strings.HasSuffix(itemPath, ".pak") || strings.HasSuffix(itemPath, ".pak.disabled"))
+}
