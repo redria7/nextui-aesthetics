@@ -522,8 +522,8 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 
 func saveCurrentTheme(components []models.Component, options models.ComponentOptionSelections, themeName string) error {
 	// Save meta components and build component directory/type maps for recursion
-	var homeDirectories map[string]bool
-	var componentTypes map[string]bool
+	homeDirectories := make(map[string]bool)
+	componentTypes := make(map[string]bool)
 	for _, component := range components {
 		if component.ComponentType.ContainsMetaFiles {
 			switch component.ComponentType.ComponentType {
@@ -549,7 +549,7 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	}
 	
 	// Collect valid parent directories for rom dependent directories
-	var validParents map[string]bool
+	validParents := make(map[string]bool)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return err
@@ -669,8 +669,8 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 
 func resetToDefaultRequestedComponents(components []models.Component, options models.ComponentOptionSelections) error {
 	// Reset meta components and build component directory/type maps for recursion
-	var homeDirectories map[string]bool
-	var componentTypes map[string]bool
+	homeDirectories := make(map[string]bool)
+	componentTypes := make(map[string]bool)
 	for _, component := range components {
 		if component.ComponentType.ContainsMetaFiles && !options.OptionInactive {
 			switch component.ComponentType.ComponentType {
@@ -696,7 +696,7 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	}
 	
 	// Collect valid parent directories for rom dependent directories
-	var validParents map[string]bool
+	validParents := make(map[string]bool)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return err
@@ -775,7 +775,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 	logger := common.GetLoggerInstance()
 	
 	// Collect valid parent directories for non-meta components
-	var validParents map[string]string
+	validParents := make(map[string]string)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return err
@@ -793,7 +793,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 	// For each component, 
 	for _, component := range components {
 		isRomDependent := checkComponentForRomsDependency(component.ComponentType.ComponentHomeDirectory)
-		var romParentSet map[string]bool
+		romParentSet := make(map[string]bool)
 		for _, componentPath := range component.ComponentPaths {
 			// For each path in a component, apply all decorations in the path according to the rules
 			files, err := GetFileList(componentPath)

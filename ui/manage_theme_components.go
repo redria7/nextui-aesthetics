@@ -31,7 +31,7 @@ func (mtc ManageThemeComponents) Name() sum.Int[models.ScreenName] {
 func (mtc ManageThemeComponents) Draw() (interface{}, int, error) {
 	// Set values depending on selected theme
 	themeTitle := "Current"
-	actionOption := "Default"
+	actionOption := "Clear"
 	selectOption := "Save"
 	selectHelp := "Save selected components into a theme"
 	actionHelp := "Revert selected components to default (stock) settings"
