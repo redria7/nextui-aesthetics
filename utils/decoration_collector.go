@@ -488,7 +488,9 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 	// If current theme and not exited yet, then save and exit
 	if isCurrentTheme {
 		// Save current theme
-		themeName := "LocalTheme: " + time.Now().UTC().Format(time.DateTime)
+		themeName := "LocalTheme " + time.Now().UTC().Format(time.DateTime)
+		themeName = strings.ReplaceAll(themeName, ":", "-")
+		themeName = strings.ReplaceAll(themeName, " ", "_")
 		_, err := gaba.ProcessMessage("Saving requested components to new theme " + themeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
 			err := saveCurrentTheme(components, options, themeName)
 			if err != nil {
