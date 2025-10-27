@@ -521,6 +521,8 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 }
 
 func saveCurrentTheme(components []models.Component, options models.ComponentOptionSelections, themeName string) error {
+	logger := common.GetLoggerInstance()
+
 	// Save meta components and build component directory/type maps for recursion
 	homeDirectories := make(map[string]bool)
 	componentTypes := make(map[string]bool)
@@ -528,7 +530,12 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 		if component.ComponentType.ContainsMetaFiles {
 			switch component.ComponentType.ComponentType {
 				case ComponentTypeIcon:
-					CopyFile("/mnt/SDCARD/.media/Collections.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
+					logger.Info("Source is " + "/mnt/SDCARD/.media/Collections.png")
+					logger.Info("Destination is " + filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
+					err := CopyFile("/mnt/SDCARD/.media/Collections.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
+					if err != nil {
+						logger.Info("error encountered for collections icon " + err.Error())
+					}
 					CopyFile("/mnt/SDCARD/.media/Recently Played.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"))
 					CopyFile("/mnt/SDCARD/Tools/.media/tg5040.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"))
 				case ComponentTypeWallpaper:
