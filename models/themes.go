@@ -12,6 +12,28 @@ type Theme struct {
 	IsHidden		bool
 }
 
+type Component struct {
+	ComponentName 	string
+	IsSupported		bool
+	ComponentPaths	[]string
+	ComponentType	ComponentTypeDetails
+	// ComponentCount	int	// future improvement?
+}
+
+type ComponentTypeDetails struct {
+	ComponentType			string
+	ComponentHomeDirectory	string
+	ContainsMetaFiles		bool
+	DuplicateType			bool
+}
+
+type ComponentOptionSelections struct{
+	OptionAll		bool
+	OptionActive	bool
+	OptionInactive	bool
+	OptionClear		bool
+}
+
 // CatalogData represents the structure of the catalog.json file
 type CatalogData struct {
 	Themes		map[string]CatalogItemInfo            `json:"themes"`		// .Themes[ThemeName] = catalogiteminfo					theme type is Theme,	theme name is key

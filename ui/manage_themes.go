@@ -46,7 +46,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EnableAction = true
-	options.EmptyMessage = "No themes to delete! Go download some!"
+	options.EmptyMessage = "No themes to manage! Save or download some!"
 	options.EnableImages = true
 
 	// Set index
@@ -58,7 +58,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
 		{ButtonName: "X", HelpText: "Delete"},
-		//{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "A", HelpText: "Select"},
 	}
 
 	// Wait for results

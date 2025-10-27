@@ -102,6 +102,10 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 			return handleDownloadThemeConfirmationTransition(currentScreen, result, code)
 		case models.ScreenNames.ManageThemes:
 			return handleManageThemesTransition(result, code)
+		case models.ScreenNames.ManageThemeComponents:
+			return handleManageThemeComponentsTransition(currentScreen, result, code)
+		case models.ScreenNames.ManageThemeComponentOptions:
+			return handleManageThemeComponentOptionsTransition(currentScreen, result, code)
 		case models.ScreenNames.DirectoryBrowser:
 			return handleDirectoryBrowserTransition(currentScreen, result, code)
 		case models.ScreenNames.DecorationOptions:
@@ -131,6 +135,8 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 					return ui.InitDownloadThemesBrowser(false)
 				case ui.ManageThemesDisplayName:
 					return ui.InitManageThemes()
+				case ui.ManageCurrentThemeDisplayName:
+					return ui.InitManageThemeComponents(models.Theme{})
 			}
 		case utils.ExitCodeAction:
 			return ui.InitSettingsScreen()
@@ -145,14 +151,15 @@ func handleMainMenuTransition(result interface{}, code int) models.Screen {
 func handleManageThemesTransition(result interface{}, code int) models.Screen {
 	switch code {
 		case utils.ExitCodeSelect:
-			// TODO: add actual theme management
-			return ui.InitManageThemes()
+			state.AddNewMenuPosition()
+			return ui.InitManageThemeComponents(result.(models.Theme))
 		case utils.ExitCodeAction:
 			theme := result.(models.Theme)
 			if confirmDeletion("Delete theme: " + theme.ThemeName + "?", utils.GetPreviewPath(theme.ThemeName)) {
 				res := common.DeleteFile(theme.ThemePath)
 				if res {
 					utils.ShowTimedMessage("Deleted " + theme.ThemeName, shortMessageDelay)
+					state.ClearDecorationAggregations()
 				} else {
 					utils.ShowTimedMessage("Failed to delete " + theme.ThemeName, shortMessageDelay)
 				}
@@ -161,6 +168,77 @@ func handleManageThemesTransition(result interface{}, code int) models.Screen {
 	}
 	state.ReturnToMain()
 	return ui.InitMainMenu()
+}
+
+func handleManageThemeComponentsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	mtc := currentScreen.(ui.ManageThemeComponents)
+
+	switch code {
+		case utils.ExitCodeSelect, utils.ExitCodeAction:
+			selectedComponents := result.([]models.Component)
+			if len(selectedComponents) == 0 {
+				utils.ShowTimedMessage("Please select at least one component!", shortMessageDelay)
+				return ui.InitManageThemeComponents(mtc.Theme)
+			}
+			if code == utils.ExitCodeAction && mtc.Theme != (models.Theme{}) {
+				var componentString string
+				for _, component := range selectedComponents {
+					componentString = componentString + component.ComponentName + "\n"
+				}
+				if confirmDeletion("From the theme " + mtc.Theme.ThemeName + "\nDelete the components:\n" + componentString, "") {
+					state.UpdateCurrentMenuPosition(0, 0)
+					deletedCount := 0
+					failedCount := 0
+					for _, component := range selectedComponents {
+						success := true
+						for _, path := range component.ComponentPaths {
+							res := common.DeleteFile(path)
+							if !res {
+								success = false
+							}
+						}
+						if success {
+							deletedCount++
+						} else {
+							failedCount++
+						}
+					}
+					failedModifier := ""
+					if failedCount > 0 {
+						failedModifier = fmt.Sprintf("\nFailed to delete %d components", failedCount)
+					}
+					utils.ShowTimedMessage(fmt.Sprintf("Deleted %d components%s", deletedCount, failedModifier), shortMessageDelay)
+					state.ClearDecorationAggregations()
+				}
+				return ui.InitManageThemeComponents(mtc.Theme)
+			}
+			state.AddNewMenuPosition()
+			return ui.InitManageThemeComponentOptions(mtc.Theme, selectedComponents, code == utils.ExitCodeAction)
+	}
+	if mtc.Theme == (models.Theme{}) {
+		state.ReturnToMain()
+		return ui.InitMainMenu()
+	}
+	state.RemoveMenuPositions(1)
+	return ui.InitManageThemes()
+}
+
+func handleManageThemeComponentOptionsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	mtco := currentScreen.(ui.ManageThemeComponentOptions)
+
+	switch code {
+		case utils.ExitCodeSelect:
+			selectedOptions := result.(models.ComponentOptionSelections)
+			res, _ := utils.ApplyThemeComponentUpdates(mtco.Theme, mtco.Components, selectedOptions)
+			state.ClearDecorationAggregations()
+			if res != "" {
+				utils.ShowTimedMessage(fmt.Sprintf("Encountered error while %s, stopping and returning.", res), longMessageDelay)
+				state.UpdateCurrentMenuPosition(0, 0)
+				return ui.InitManageThemeComponentOptions(mtco.Theme, mtco.Components, mtco.ClearSelected)
+			}
+	}
+	state.RemoveMenuPositions(1)
+	return ui.InitManageThemeComponents(mtco.Theme)
 }
 
 func handleDownloadThemesBrowserTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
