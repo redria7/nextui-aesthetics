@@ -226,10 +226,10 @@ func collectNestedDecorations(
 	return consoleAggregation, directoryAggregation
 }
 
-func checkIfFolderIcon(immediateParent string, itemName string, itemExt string) bool {
+func checkIfFolderIcon(mediaParent string, itemName string, itemExt string) bool {
 	// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 	itemBase := strings.TrimSuffix(itemName, itemExt)
-	iconTarget := filepath.Join(immediateParent, itemBase)
+	iconTarget := filepath.Join(mediaParent, itemBase)
 	stats, err := os.Stat(iconTarget)
 	if err == nil && stats.IsDir() {
 		iconChildPattern := filepath.Join(iconTarget, itemBase + ".*")
@@ -271,7 +271,7 @@ func collectComponentsByNestedDirectoryForCurrentTheme(componentList []models.Co
 				isFolderIcon := false
 				// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 				if isDecoration && !isMediaBg && !isMediaBgList {
-					isFolderIcon = checkIfFolderIcon(currentPath, itemName, itemExt)
+					isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
 				}
 				// Update loop status
 				if isMediaBg {
@@ -638,7 +638,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				isFolderIcon := false
 				// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 				if !isMediaBg && !isMediaBgList {
-					isFolderIcon = checkIfFolderIcon(currentPath, itemName, itemExt)
+					isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
 				}
 
 				logger.Debug("File found: " + itemName + ", is media bg: "+ fmt.Sprint(isMediaBg) + ", is media bglist: " + fmt.Sprint(isMediaBgList) + ", is folder icon: " + fmt.Sprint(isFolderIcon))
@@ -806,7 +806,7 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 				isFolderIcon := false
 				// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 				if !isMediaBg && !isMediaBgList {
-					isFolderIcon = checkIfFolderIcon(currentPath, itemName, itemExt)
+					isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
 				}
 				// Check for matches to components then remove if found
 				if isMediaBg && componentTypes[ComponentTypeWallpaper] {
