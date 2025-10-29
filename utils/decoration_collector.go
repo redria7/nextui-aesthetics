@@ -335,8 +335,9 @@ func collectComponentsByNestedDirectoryForCurrentTheme(componentList []models.Co
 		return componentList
 	}
 	portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms")
+	toolsFolder := (componentHomeDirectory == ToolsDirectory && currentPath != componentHomeDirectory)
 	for _, file := range files {
-		if file.IsDir() && file.Name() != ".media" && !portsFolder {
+		if file.IsDir() && file.Name() != ".media" && !portsFolder && !toolsFolder {
 			componentList = collectComponentsByNestedDirectoryForCurrentTheme(componentList, componentHomeDirectory, filepath.Join(currentPath, file.Name()))
 		}
 	}
@@ -725,7 +726,9 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 			}
 		} else {
 			// recurse
-			if file.IsDir() {
+			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && currentPath != componentHomeDirectory)
+			toolsFolder := (componentHomeDirectory == ToolsDirectory && currentPath != componentHomeDirectory)
+			if file.IsDir() && !portsFolder && !toolsFolder {
 				logger.Debug("directory found, trying to recurse: " + itemName)
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
 					logger.Debug("valid directory. recursing")
@@ -784,14 +787,14 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	for homeDirectory, homeDirectoryComponentTypes := range homeDirectories {
 		isRomDependent := checkComponentForRomsDependency(homeDirectory)
 		if !options.OptionInactive || isRomDependent {
-			resetDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes)
+			resetDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, homeDirectory)
 		}
 	}
 
 	return nil
 }
 
-func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool) {
+func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, componentHomeDirectory string) {
 	currentDirectory := filepath.Base(currentPath)
 	isMedia := false
 	if currentDirectory == ".media" {
@@ -831,9 +834,11 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 			}
 		} else {
 			// recurse
-			if file.IsDir() {
+			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && currentPath != componentHomeDirectory)
+			toolsFolder := (componentHomeDirectory == ToolsDirectory && currentPath != componentHomeDirectory)
+			if file.IsDir() && !portsFolder && !toolsFolder {
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
-					resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes)
+					resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, componentHomeDirectory)
 				}
 			}
 		}
