@@ -570,8 +570,7 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	logger.Debug("components: " + fmt.Sprint(components))
 
 	// Save meta components and build component directory/type maps for recursion
-	homeDirectories := make(map[string]bool)
-	componentTypes := make(map[string]bool)
+	homeDirectories := make(map[string]map[string]bool)
 	for _, component := range components {
 		if component.ComponentType.ContainsMetaFiles {
 			switch component.ComponentType.ComponentType {
@@ -590,13 +589,13 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 					CopyFile("/mnt/SDCARD/Tools/tg5040/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"))
 			}
 		}
-		// Add component type to map while looping
-		homeDirectories[component.ComponentType.ComponentHomeDirectory] = true
-		// Add component type to map while looping
-		componentTypes[component.ComponentType.ComponentType] = true
+		// Add component directories and types to map while looping
+		if homeDirectories[component.ComponentType.ComponentHomeDirectory] == nil {
+			homeDirectories[component.ComponentType.ComponentHomeDirectory] = make(map[string]bool)
+		}
+		homeDirectories[component.ComponentType.ComponentHomeDirectory][component.ComponentType.ComponentType] = true
 	}
 	logger.Debug("home directories: " + fmt.Sprint(homeDirectories))
-	logger.Debug("component types: " + fmt.Sprint(componentTypes))
 	
 	// Collect valid parent directories for rom dependent directories
 	validParents := make(map[string]bool)
@@ -616,10 +615,10 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	logger.Debug("valid parents: " + fmt.Sprint(validParents))
 
 	// Save non meta components
-	for homeDirectory, _ := range homeDirectories {
+	for homeDirectory, homeDirectoryComponentTypes := range homeDirectories {
 		isRomDependent := checkComponentForRomsDependency(homeDirectory)
 		logger.Debug("for home directory: " + homeDirectory + ", it is rom dependent: " + fmt.Sprint(isRomDependent))
-		saveDecorations(homeDirectory, isRomDependent, validParents, false, componentTypes, themeName, homeDirectory)
+		saveDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, themeName, homeDirectory)
 	}
 
 	return nil
@@ -743,8 +742,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 
 func resetToDefaultRequestedComponents(components []models.Component, options models.ComponentOptionSelections) error {
 	// Reset meta components and build component directory/type maps for recursion
-	homeDirectories := make(map[string]bool)
-	componentTypes := make(map[string]bool)
+	homeDirectories := make(map[string]map[string]bool)
 	for _, component := range components {
 		if component.ComponentType.ContainsMetaFiles && !options.OptionInactive {
 			switch component.ComponentType.ComponentType {
@@ -763,10 +761,11 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 					common.DeleteFile("/mnt/SDCARD/Tools/tg5040/.media/bglist.png")
 			}
 		}
-		// Add component directory to map while looping
-		homeDirectories[component.ComponentType.ComponentHomeDirectory] = true
-		// Add component type to map while looping
-		componentTypes[component.ComponentType.ComponentType] = true
+		// Add component directories and types to map while looping
+		if homeDirectories[component.ComponentType.ComponentHomeDirectory] == nil {
+			homeDirectories[component.ComponentType.ComponentHomeDirectory] = make(map[string]bool)
+		}
+		homeDirectories[component.ComponentType.ComponentHomeDirectory][component.ComponentType.ComponentType] = true
 	}
 	
 	// Collect valid parent directories for rom dependent directories
@@ -786,10 +785,10 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	}
 
 	// Reset non meta components
-	for homeDirectory, _ := range homeDirectories {
+	for homeDirectory, homeDirectoryComponentTypes := range homeDirectories {
 		isRomDependent := checkComponentForRomsDependency(homeDirectory)
 		if !options.OptionInactive || isRomDependent {
-			resetDecorations(homeDirectory, isRomDependent, validParents, false, componentTypes)
+			resetDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes)
 		}
 	}
 
