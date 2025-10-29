@@ -273,7 +273,7 @@ func collectComponentsByNestedDirectoryForCurrentTheme(componentList []models.Co
 				itemName := file.Name()
 				itemExt := filepath.Ext(itemName)
 				// Skip meta files as they are already reviewed
-				if !isMetaFile(filepath.Join(currentPath, itemName)) {
+				if !isMetaFile(filepath.Join(mediaDirectory, itemName)) {
 					// Build conditions
 					isDecoration := itemExt == ".png"
 					isMediaBg := itemName == "bg.png"
@@ -734,8 +734,8 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 			}
 		} else {
 			// recurse
-			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && currentPath != componentHomeDirectory)
-			toolsFolder := (componentHomeDirectory == ToolsDirectory && currentPath != componentHomeDirectory)
+			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && !(filepath.Dir(currentPath) == componentHomeDirectory || filepath.Dir(filepath.Dir(currentPath)) == componentHomeDirectory))
+			toolsFolder := (componentHomeDirectory == ToolsDirectory && !(currentPath == componentHomeDirectory || filepath.Dir(currentPath) == componentHomeDirectory))
 			if file.IsDir() && !portsFolder && !toolsFolder {
 				logger.Debug("directory found, trying to recurse: " + itemName)
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
@@ -842,8 +842,8 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 			}
 		} else {
 			// recurse
-			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && currentPath != componentHomeDirectory)
-			toolsFolder := (componentHomeDirectory == ToolsDirectory && currentPath != componentHomeDirectory)
+			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && !(filepath.Dir(currentPath) == componentHomeDirectory || filepath.Dir(filepath.Dir(currentPath)) == componentHomeDirectory))
+			toolsFolder := (componentHomeDirectory == ToolsDirectory && !(currentPath == componentHomeDirectory || filepath.Dir(currentPath) == componentHomeDirectory))
 			if file.IsDir() && !portsFolder && !toolsFolder {
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
 					resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, componentHomeDirectory)
