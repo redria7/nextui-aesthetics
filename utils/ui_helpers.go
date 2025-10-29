@@ -23,6 +23,17 @@ func ConfirmAction(message string, imagePath string) bool {
 	return err == nil && result.IsSome()
 }
 
+func ConfirmActionCustomBack(message string, imagePath string, backText string) bool {
+	result, err := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
+		{ButtonName: "B", HelpText: backText},
+		{ButtonName: "A", HelpText: "Yes"},
+	}, gaba.MessageOptions{
+		ImagePath: imagePath,
+	})
+
+	return err == nil && result.IsSome()
+}
+
 func ConfirmBulkAction(message string) bool {
 	confirm, _ := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Cancel"},

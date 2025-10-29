@@ -528,15 +528,23 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 	}
 
 	// Apply selected theme
-	_, err := gaba.ProcessMessage("Applying requested components from theme " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+	if !options.OptionConfirm {
+		_, err := gaba.ProcessMessage("Applying requested components from theme " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+			err := applySelectedThemeComponents(theme, components, options)
+			if err != nil {
+				return nil, err
+			}
+			return nil, nil
+		})
+		if err != nil {
+			return "Applying Components", err
+		}
+	} else {
+		// When run with the confirm option, don't wrap in a gaba process
 		err := applySelectedThemeComponents(theme, components, options)
 		if err != nil {
-			return nil, err
+			return "Applying Components", err
 		}
-		return nil, nil
-	})
-	if err != nil {
-		return "Applying Components", err
 	}
 
 	return "", nil
@@ -884,40 +892,40 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 								case ComponentTypeIcon:
 									switch itemName {
 										case "Collections.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Collections.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Collections.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Recently Played.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Recently Played.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Recently Played.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Tools.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/.media/tg5040.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/.media/tg5040.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 									}
 								case ComponentTypeWallpaper:
 									switch itemName {
 										case "Collections.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bg.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bg.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Recently Played.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bg.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bg.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Tools.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bg.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bg.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Root.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/bg.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/bg.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 									}
 								case ComponentTypeListWallpaper:
 									switch itemName {
 										case "Collections.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bglist.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bglist.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Recently Played.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bglist.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bglist.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 										case "Tools.png":
-											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bglist.png", options.OptionPreserve)
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bglist.png", options.OptionPreserve, options.OptionConfirm)
 											metaFileCopied = true
 									}
 							}
@@ -962,7 +970,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 											destinationPath = GetTrueListWallpaperPath(parentConsoleDirectory)
 									}
 									if destinationPath != "" {
-										applyThemeDecorationSafely(filepath.Join(componentPath, itemName), destinationPath, options.OptionPreserve)
+										applyThemeDecorationSafely(filepath.Join(componentPath, itemName), destinationPath, options.OptionPreserve, options.OptionConfirm)
 									}
 								}
 							}
@@ -976,7 +984,16 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 	return nil
 }
 
-func applyThemeDecorationSafely(sourcePath string, destinationPath string, existencePreCheck bool) {
+func applyThemeDecorationSafely(sourcePath string, destinationPath string, existencePreCheck bool, confirmCopy bool) {
+	if confirmCopy {
+		sourcePathList := strings.Split(sourcePath, string(filepath.Separator))
+		message := "Apply " + filepath.Join(sourcePathList[len(sourcePathList) - 2:]...)
+		if ConfirmActionCustomBack(message, sourcePath, "Skip") {
+			CopyFile(sourcePath, destinationPath)
+		}
+		return
+	}
+
 	if existencePreCheck {
 		if DoesFileExists(destinationPath) {
 			return

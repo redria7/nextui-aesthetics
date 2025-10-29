@@ -23,6 +23,7 @@ const (
 	ApplyAllOverwrite		= "Apply components without clearing: for all content"
 	ApplyActivePreserve		= "Apply only missing components: for active content"
 	ApplyAllPreserve		= "Apply only missing components: for all content"
+	ApplyAllConfirm			= "Apply all components with individual confirmations"
 )
 
 type ManageThemeComponentOptions struct{
@@ -54,21 +55,21 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 	if isCurrentTheme {
 		if mtco.ClearSelected {
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearContentOnlyName,
-				Selected: false,
-				Focused:  false,
-				Metadata: models.ComponentOptionSelections{
-					OptionClear: true,
-					OptionActive: true,
-				},
-			})
-			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     ClearNonContentOnlyName,
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
 					OptionClear: true,
 					OptionInactive: true,
+				},
+			})
+			menuItems = append(menuItems, gaba.MenuItem{
+				Text:     ClearContentOnlyName,
+				Selected: false,
+				Focused:  false,
+				Metadata: models.ComponentOptionSelections{
+					OptionClear: true,
+					OptionActive: true,
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
@@ -100,21 +101,30 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 		}
 	} else {
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyActiveAndClearName,
+			Text:     ApplyAllConfirm,
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
-				OptionClear: true,
-				OptionActive: true,
+				OptionAll: true,
+				OptionConfirm: true,
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllAndClearName,
+			Text:     ApplyActivePreserve,
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
-				OptionClear: true,
+				OptionActive: true,
+				OptionPreserve: true,
+			},
+		})
+		menuItems = append(menuItems, gaba.MenuItem{
+			Text:     ApplyAllPreserve,
+			Selected: false,
+			Focused:  false,
+			Metadata: models.ComponentOptionSelections{
 				OptionAll: true,
+				OptionPreserve: true,
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
@@ -134,21 +144,21 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyActivePreserve,
+			Text:     ApplyActiveAndClearName,
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
+				OptionClear: true,
 				OptionActive: true,
-				OptionPreserve: true,
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllPreserve,
+			Text:     ApplyAllAndClearName,
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
+				OptionClear: true,
 				OptionAll: true,
-				OptionPreserve: true,
 			},
 		})
 	}
