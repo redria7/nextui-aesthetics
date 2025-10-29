@@ -281,7 +281,7 @@ func collectComponentsByNestedDirectoryForCurrentTheme(componentList []models.Co
 					isFolderIcon := false
 					// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 					if isDecoration && !isMediaBg && !isMediaBgList {
-						isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
+						isFolderIcon = checkIfFolderIcon(filepath.Dir(mediaDirectory), itemName, itemExt)
 					}
 					// Update loop status
 					if isMediaBg {
@@ -494,7 +494,6 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 			if err != nil {
 				return nil, err
 			}
-			time.Sleep(1 * time.Second)
 			return nil, nil
 		})
 		if err != nil {
@@ -519,7 +518,6 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 			if err != nil {
 				return nil, err
 			}
-			time.Sleep(1 * time.Second)
 			return nil, nil
 		})
 		if err != nil {
@@ -529,13 +527,11 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 	}
 
 	// Apply selected theme
-	applySelectedThemeComponents(theme, components, options)
 	_, err := gaba.ProcessMessage("Applying requested components from theme " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
 		err := applySelectedThemeComponents(theme, components, options)
 		if err != nil {
 			return nil, err
 		}
-		time.Sleep(1 * time.Second)
 		return nil, nil
 	})
 	if err != nil {
@@ -883,40 +879,40 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 								case ComponentTypeIcon:
 									switch itemName {
 										case "Collections.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Collections.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Collections.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Recently Played.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Recently Played.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/.media/Recently Played.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Tools.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/.media/tg5040.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/.media/tg5040.png", options.OptionPreserve)
 											metaFileCopied = true
 									}
 								case ComponentTypeWallpaper:
 									switch itemName {
 										case "Collections.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bg.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bg.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Recently Played.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bg.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bg.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Tools.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bg.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bg.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Root.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/bg.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/bg.png", options.OptionPreserve)
 											metaFileCopied = true
 									}
 								case ComponentTypeListWallpaper:
 									switch itemName {
 										case "Collections.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bglist.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Collections/.media/bglist.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Recently Played.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bglist.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Recently Played/.media/bglist.png", options.OptionPreserve)
 											metaFileCopied = true
 										case "Tools.png":
-											CopyFile(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bglist.png")
+											applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/Tools/tg5040/.media/bglist.png", options.OptionPreserve)
 											metaFileCopied = true
 									}
 							}
@@ -961,7 +957,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 											destinationPath = GetTrueListWallpaperPath(parentConsoleDirectory)
 									}
 									if destinationPath != "" {
-										CopyFile(filepath.Join(componentPath, itemName), destinationPath)
+										applyThemeDecorationSafely(filepath.Join(componentPath, itemName), destinationPath, options.OptionPreserve)
 									}
 								}
 							}
@@ -973,6 +969,15 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 	}
 
 	return nil
+}
+
+func applyThemeDecorationSafely(sourcePath string, destinationPath string, existencePreCheck bool) {
+	if existencePreCheck {
+		if DoesFileExists(destinationPath) {
+			return
+		}
+	}
+	CopyFile(sourcePath, destinationPath)
 }
 
 func checkComponentForRomsDependency(componentHomeDirectory string) bool {

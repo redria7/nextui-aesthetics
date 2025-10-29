@@ -21,6 +21,8 @@ const (
 	ApplyAllAndClearName	= "Clear components then apply: for all content"
 	ApplyActiveOverwrite	= "Apply components without clearing: for active content"
 	ApplyAllOverwrite		= "Apply components without clearing: for all content"
+	ApplyActivePreserve		= "Apply only missing components: for active content"
+	ApplyAllPreserve		= "Apply only missing components: for all content"
 )
 
 type ManageThemeComponentOptions struct{
@@ -129,6 +131,24 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
 				OptionAll: true,
+			},
+		})
+		menuItems = append(menuItems, gaba.MenuItem{
+			Text:     ApplyActivePreserve,
+			Selected: false,
+			Focused:  false,
+			Metadata: models.ComponentOptionSelections{
+				OptionActive: true,
+				OptionPreserve: true,
+			},
+		})
+		menuItems = append(menuItems, gaba.MenuItem{
+			Text:     ApplyAllPreserve,
+			Selected: false,
+			Focused:  false,
+			Metadata: models.ComponentOptionSelections{
+				OptionAll: true,
+				OptionPreserve: true,
 			},
 		})
 	}

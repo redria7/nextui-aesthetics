@@ -32,6 +32,7 @@ type ComponentOptionSelections struct{
 	OptionActive	bool
 	OptionInactive	bool
 	OptionClear		bool
+	OptionPreserve	bool
 }
 
 // CatalogData represents the structure of the catalog.json file
