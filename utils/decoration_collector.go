@@ -227,6 +227,14 @@ func collectNestedDecorations(
 }
 
 func checkIfFolderIcon(mediaParent string, itemName string, itemExt string) bool {
+	// For tools folder, always treat as icon. we do not dive deeper
+	if strings.HasPrefix(mediaParent, ToolsDirectory) {
+		return true
+	}
+	// For collections folder, always treat as icon. no need for further checks
+	if strings.HasPrefix(mediaParent, GetCollectionDirectory()) {
+		return true
+	}
 	// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
 	itemBase := strings.TrimSuffix(itemName, itemExt)
 	iconTarget := filepath.Join(mediaParent, itemBase)
@@ -264,24 +272,27 @@ func collectComponentsByNestedDirectoryForCurrentTheme(componentList []models.Co
 			for _, file := range files {
 				itemName := file.Name()
 				itemExt := filepath.Ext(itemName)
-				// Build conditions
-				isDecoration := itemExt == ".png"
-				isMediaBg := itemName == "bg.png"
-				isMediaBgList := itemName == "bglist.png"
-				isFolderIcon := false
-				// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
-				if isDecoration && !isMediaBg && !isMediaBgList {
-					isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
-				}
-				// Update loop status
-				if isMediaBg {
-					bgFound = true
-				}
-				if isMediaBgList {
-					bgListFound = true
-				}
-				if isFolderIcon {
-					iconFound = true
+				// Skip meta files as they are already reviewed
+				if !isMetaFile(filepath.Join(currentPath, itemName)) {
+					// Build conditions
+					isDecoration := itemExt == ".png"
+					isMediaBg := itemName == "bg.png"
+					isMediaBgList := itemName == "bglist.png"
+					isFolderIcon := false
+					// If a .media non-wallpaper image is found, check to see if the icon target is probably self contained
+					if isDecoration && !isMediaBg && !isMediaBgList {
+						isFolderIcon = checkIfFolderIcon(filepath.Dir(currentPath), itemName, itemExt)
+					}
+					// Update loop status
+					if isMediaBg {
+						bgFound = true
+					}
+					if isMediaBgList {
+						bgListFound = true
+					}
+					if isFolderIcon {
+						iconFound = true
+					}
 				}
 			}
 
@@ -384,6 +395,10 @@ func collectComponentsByDirectoryForCurrentTheme(componentList []models.Componen
 	}
 
 	return componentList
+}
+
+func isMetaFile(directoryPath string) bool {
+	return metaPaths[directoryPath]
 }
 
 func FindConsoleTag(directoryPath string) string {
@@ -631,7 +646,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 		itemExt := filepath.Ext(itemName)
 		if isMedia {
 			// reset png files
-			if itemExt == ".png" {
+			if itemExt == ".png" && !isMetaFile(filepath.Join(currentPath, itemName)) {
 				// Build conditions
 				isMediaBg := itemName == "bg.png"
 				isMediaBgList := itemName == "bglist.png"
@@ -658,7 +673,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				logger.Debug("component name prefix: " + componentNamePrefix)
 				// Generate starting path list
 				decorationPathList := strings.Split(strings.TrimPrefix(currentPath, componentHomeDirectory), string(filepath.Separator))
-				decorationPathList = decorationPathList[:len(decorationPathList) - 1] // remove .media
+				decorationPathList = decorationPathList[1:len(decorationPathList) - 1] // remove .media and empty leading element from leading separator
 				logger.Debug("decoration path: " + fmt.Sprint(decorationPathList))
 				// console name adjustment?
 				// Copy file to theme directory with appropriate name
@@ -702,7 +717,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 							}
 						}
 					}
-					logger.Debug("adjusted decoration path for icon: " + fmt.Sprint(decorationPathList))
+					logger.Debug("adjusted decoration path for icon: " + fmt.Sprint(iconDecorationPathList))
 					if iconDecorationPathList[0] != "" {
 						destinationName := strings.Join(iconDecorationPathList, folderDelimiter)
 						logger.Debug("decoration name: " + destinationName)
@@ -799,7 +814,7 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 		itemExt := filepath.Ext(itemName)
 		if isMedia {
 			// reset png files
-			if itemExt == ".png" {
+			if itemExt == ".png" && !isMetaFile(filepath.Join(currentPath, itemName)) {
 				// Build conditions
 				isMediaBg := itemName == "bg.png"
 				isMediaBgList := itemName == "bglist.png"

@@ -82,6 +82,19 @@ var ComponentTypes = map[string]models.ComponentTypeDetails{
 	},
 }
 
+var metaPaths = map[string]bool{
+	"/mnt/SDCARD/bg.png": true,
+	"/mnt/SDCARD/.media/Collections.png": true,
+	"/mnt/SDCARD/Collections/.media/bg.png": true,
+	"/mnt/SDCARD/Collections/.media/bglist.png": true,
+	"/mnt/SDCARD/.media/Recently Played.png": true,
+	"/mnt/SDCARD/Recently Played/.media/bg.png": true,
+	"/mnt/SDCARD/Recently Played/.media/bglist.png": true,
+	"/mnt/SDCARD/Tools/.media/tg5040.png": true,
+	"/mnt/SDCARD/Tools/tg5040/.media/bg.png": true,
+	"/mnt/SDCARD/Tools/tg5040/.media/bglist.png": true,
+}
+
 var DecorationSources = []directorySource{
 	directorySource{DirectoryPath: ThemesDirectory, FilenamesTagFree: true},
 	directorySource{DirectoryPath: "/mnt/SDCARD/Screenshots", FilenamesTagFree: false},
