@@ -489,22 +489,24 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 	isCurrentTheme := IsCurrentTheme(theme)
 
 	if options.OptionClear {
-		// Clear requested stuff
-		if !options.OptionConfirm {
-			_, err := gaba.ProcessMessage("Resetting requested components to default", gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+		if ConfirmAction("Begin resetting requested components?", "") {
+			// Clear requested stuff
+			if !options.OptionConfirm {
+				_, err := gaba.ProcessMessage("Resetting requested components to default", gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+					err := resetToDefaultRequestedComponents(components, options)
+					if err != nil {
+						return nil, err
+					}
+					return nil, nil
+				})
+				if err != nil {
+					return "Reverting to Defaults", err
+				}
+			} else {
 				err := resetToDefaultRequestedComponents(components, options)
 				if err != nil {
-					return nil, err
+					return "Reverting to Defaults", err
 				}
-				return nil, nil
-			})
-			if err != nil {
-				return "Reverting to Defaults", err
-			}
-		} else {
-			err := resetToDefaultRequestedComponents(components, options)
-			if err != nil {
-				return "Reverting to Defaults", err
 			}
 		}
 		
@@ -516,48 +518,52 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 
 	// If current theme and not exited yet, then save and exit
 	if isCurrentTheme {
-		// Save current theme
-		themeName, err := generateThemeName()
-		if err != nil {
-			return "Saving Current Theme", err
-		}
-		if !options.OptionConfirm {
-			_, err = gaba.ProcessMessage("Saving requested components to new theme " + themeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
-				err := saveCurrentTheme(components, options, themeName)
-				if err != nil {
-					return nil, err
-				}
-				return nil, nil
-			})
+		if ConfirmAction("Begin saving requested components?", "") {
+			// Save current theme
+			themeName, err := generateThemeName()
 			if err != nil {
 				return "Saving Current Theme", err
 			}
-		} else {
-			err := saveCurrentTheme(components, options, themeName)
-			if err != nil {
-				return "Saving Current Theme", err
+			if !options.OptionConfirm {
+				_, err = gaba.ProcessMessage("Saving requested components to new theme " + themeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+					err := saveCurrentTheme(components, options, themeName)
+					if err != nil {
+						return nil, err
+					}
+					return nil, nil
+				})
+				if err != nil {
+					return "Saving Current Theme", err
+				}
+			} else {
+				err := saveCurrentTheme(components, options, themeName)
+				if err != nil {
+					return "Saving Current Theme", err
+				}
 			}
 		}
 		return "", nil
 	}
 
 	// Apply selected theme
-	if !options.OptionConfirm {
-		_, err := gaba.ProcessMessage("Applying requested components from theme " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+	if ConfirmAction("Begin applying requested components?", "") {
+		if !options.OptionConfirm {
+			_, err := gaba.ProcessMessage("Applying requested components from theme " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+				err := applySelectedThemeComponents(theme, components, options)
+				if err != nil {
+					return nil, err
+				}
+				return nil, nil
+			})
+			if err != nil {
+				return "Applying Components", err
+			}
+		} else {
+			// When run with the confirm option, don't wrap in a gaba process
 			err := applySelectedThemeComponents(theme, components, options)
 			if err != nil {
-				return nil, err
+				return "Applying Components", err
 			}
-			return nil, nil
-		})
-		if err != nil {
-			return "Applying Components", err
-		}
-	} else {
-		// When run with the confirm option, don't wrap in a gaba process
-		err := applySelectedThemeComponents(theme, components, options)
-		if err != nil {
-			return "Applying Components", err
 		}
 	}
 
