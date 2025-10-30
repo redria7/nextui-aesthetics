@@ -229,12 +229,14 @@ func handleManageThemeComponentOptionsTransition(currentScreen models.Screen, re
 	switch code {
 		case utils.ExitCodeSelect:
 			selectedOptions := result.(models.ComponentOptionSelections)
-			res, _ := utils.ApplyThemeComponentUpdates(mtco.Theme, mtco.Components, selectedOptions)
+			res, _, modifyCount := utils.ApplyThemeComponentUpdates(mtco.Theme, mtco.Components, selectedOptions)
 			state.ClearDecorationAggregations()
 			if res != "" {
-				utils.ShowTimedMessage(fmt.Sprintf("Encountered error while %s, stopping and returning.", res), longMessageDelay)
+				utils.ShowTimedMessage("Encountered error while " + res + "\nStopping and returning\n" + string(modifyCount) + " updates made", longMessageDelay)
 				state.UpdateCurrentMenuPosition(0, 0)
 				return ui.InitManageThemeComponentOptions(mtco.Theme, mtco.Components, mtco.ClearSelected)
+			} else {
+				utils.ShowTimedMessage(string(modifyCount) + " updates made", shortMessageDelay)
 			}
 	}
 	state.RemoveMenuPositions(1)
