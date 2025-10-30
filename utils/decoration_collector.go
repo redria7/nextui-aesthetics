@@ -957,6 +957,16 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 								// file has a valid parent. Move if the parent directory exists
 								filePathParts = append([]string{component.ComponentType.ComponentHomeDirectory}, filePathParts...)
 								parentConsoleDirectory := filepath.Join(filePathParts...)
+								if component.ComponentType.ComponentHomeDirectory == GetCollectionDirectory() {
+									if !DoesFileExists(parentConsoleDirectory) {
+										parentConsoleDirectory = parentConsoleDirectory + ".txt"
+									}
+								}
+								if component.ComponentType.ComponentHomeDirectory == ToolsDirectory {
+									if !DoesFileExists(parentConsoleDirectory) {
+										parentConsoleDirectory = parentConsoleDirectory + ".pak"
+									}
+								}
 								if DoesFileExists(parentConsoleDirectory) {
 									// File exists. Collect the destination path then copy
 									destinationPath := ""
