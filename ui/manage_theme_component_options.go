@@ -14,9 +14,11 @@ const (
 	// DecorationsDisplayName 		= "Set Wallpapers & Icons"
 	SaveForAllName			= "Save components: for all content"
 	SaveForContentOnlyName	= "Save components: for active content"
+	SaveAllConfirm			= "Save all components with individual confirmations"
 	ClearContentOnlyName	= "Revert components to default: for active content"
 	ClearNonContentOnlyName	= "Revert components to default: for inactive content"
 	ClearAllName			= "Revert components to default: for all content"
+	ClearAllConfirm			= "Revert all components with individual confirmations"
 	ApplyActiveAndClearName	= "Clear components then apply: for active content"
 	ApplyAllAndClearName	= "Clear components then apply: for all content"
 	ApplyActiveOverwrite	= "Apply components without clearing: for active content"
@@ -55,6 +57,16 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 	if isCurrentTheme {
 		if mtco.ClearSelected {
 			menuItems = append(menuItems, gaba.MenuItem{
+				Text:     ClearAllConfirm,
+				Selected: false,
+				Focused:  false,
+				Metadata: models.ComponentOptionSelections{
+					OptionClear: true,
+					OptionAll: true,
+					OptionConfirm: true,
+				},
+			})
+			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     ClearNonContentOnlyName,
 				Selected: false,
 				Focused:  false,
@@ -82,6 +94,15 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 		} else {
+			menuItems = append(menuItems, gaba.MenuItem{
+				Text:     SaveAllConfirm,
+				Selected: false,
+				Focused:  false,
+				Metadata: models.ComponentOptionSelections{
+					OptionAll: true,
+					OptionConfirm: true,
+				},
+			})
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     SaveForContentOnlyName,
 				Selected: false,

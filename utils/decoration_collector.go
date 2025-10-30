@@ -490,15 +490,22 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 
 	if options.OptionClear {
 		// Clear requested stuff
-		_, err := gaba.ProcessMessage("Resetting requested components to default", gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+		if !options.OptionConfirm {
+			_, err := gaba.ProcessMessage("Resetting requested components to default", gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+				err := resetToDefaultRequestedComponents(components, options)
+				if err != nil {
+					return nil, err
+				}
+				return nil, nil
+			})
+			if err != nil {
+				return "Reverting to Defaults", err
+			}
+		} else {
 			err := resetToDefaultRequestedComponents(components, options)
 			if err != nil {
-				return nil, err
+				return "Reverting to Defaults", err
 			}
-			return nil, nil
-		})
-		if err != nil {
-			return "Reverting to Defaults", err
 		}
 		
 		// Current theme clears or saves. If clear is done for current theme, then return
@@ -514,15 +521,22 @@ func ApplyThemeComponentUpdates(theme models.Theme, components []models.Componen
 		if err != nil {
 			return "Saving Current Theme", err
 		}
-		_, err = gaba.ProcessMessage("Saving requested components to new theme " + themeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+		if !options.OptionConfirm {
+			_, err = gaba.ProcessMessage("Saving requested components to new theme " + themeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+				err := saveCurrentTheme(components, options, themeName)
+				if err != nil {
+					return nil, err
+				}
+				return nil, nil
+			})
+			if err != nil {
+				return "Saving Current Theme", err
+			}
+		} else {
 			err := saveCurrentTheme(components, options, themeName)
 			if err != nil {
-				return nil, err
+				return "Saving Current Theme", err
 			}
-			return nil, nil
-		})
-		if err != nil {
-			return "Saving Current Theme", err
 		}
 		return "", nil
 	}
@@ -580,18 +594,18 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 		if component.ComponentType.ContainsMetaFiles {
 			switch component.ComponentType.ComponentType {
 				case ComponentTypeIcon:
-					CopyFile("/mnt/SDCARD/.media/Collections.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
-					CopyFile("/mnt/SDCARD/.media/Recently Played.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"))
-					CopyFile("/mnt/SDCARD/Tools/.media/tg5040.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"))
+					saveThemeDecorationSafely("/mnt/SDCARD/.media/Collections.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/.media/Recently Played.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/Tools/.media/tg5040.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"), options.OptionConfirm)
 				case ComponentTypeWallpaper:
-					CopyFile("/mnt/SDCARD/Collections/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
-					CopyFile("/mnt/SDCARD/Recently Played/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"))
-					CopyFile("/mnt/SDCARD/Tools/tg5040/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"))
-					CopyFile("/mnt/SDCARD/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Root.png"))
+					saveThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Root.png"), options.OptionConfirm)
 				case ComponentTypeListWallpaper:
-					CopyFile("/mnt/SDCARD/Collections/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"))
-					CopyFile("/mnt/SDCARD/Recently Played/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"))
-					CopyFile("/mnt/SDCARD/Tools/tg5040/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"))
+					saveThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"), options.OptionConfirm)
+					saveThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"), options.OptionConfirm)
 			}
 		}
 		// Add component directories and types to map while looping
@@ -623,13 +637,13 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	for homeDirectory, homeDirectoryComponentTypes := range homeDirectories {
 		isRomDependent := checkComponentForRomsDependency(homeDirectory)
 		logger.Debug("for home directory: " + homeDirectory + ", it is rom dependent: " + fmt.Sprint(isRomDependent))
-		saveDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, themeName, homeDirectory)
+		saveDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, themeName, homeDirectory, options.OptionConfirm)
 	}
 
 	return nil
 }
 
-func saveDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, themeName string, componentHomeDirectory string) {
+func saveDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, themeName string, componentHomeDirectory string, optionConfirm bool) {
 	logger := common.GetLoggerInstance()
 
 	currentDirectory := filepath.Base(currentPath)
@@ -689,7 +703,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 					if decorationPathList[0] != "" {
 						destinationName := strings.Join(decorationPathList, folderDelimiter)
 						logger.Debug("decoration name: " + destinationName)
-						err := CopyFile(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "Wallpapers", destinationName + ".png"))
+						err := saveThemeDecorationSafely(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "Wallpapers", destinationName + ".png"), optionConfirm)
 						if err != nil {
 							logger.Error("error copying: " + err.Error())
 						}
@@ -702,7 +716,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 					logger.Debug("adjusted decoration path for list wallpaper: " + fmt.Sprint(decorationPathList))
 					if decorationPathList[0] != "" {
 						destinationName := strings.Join(decorationPathList, folderDelimiter)
-						err := CopyFile(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "ListWallpapers", destinationName + ".png"))
+						err := saveThemeDecorationSafely(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "ListWallpapers", destinationName + ".png"), optionConfirm)
 						if err != nil {
 							logger.Error("error copying: " + err.Error())
 						}
@@ -725,7 +739,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 					if iconDecorationPathList[0] != "" {
 						destinationName := strings.Join(iconDecorationPathList, folderDelimiter)
 						logger.Debug("decoration name: " + destinationName)
-						err := CopyFile(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "Icons", destinationName + ".png"))
+						err := saveThemeDecorationSafely(filepath.Join(currentPath, itemName), filepath.Join(ThemesDirectory, themeName, componentNamePrefix + "Icons", destinationName + ".png"), optionConfirm)
 						if err != nil {
 							logger.Error("error copying: " + err.Error())
 						}
@@ -740,11 +754,36 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				logger.Debug("directory found, trying to recurse: " + itemName)
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
 					logger.Debug("valid directory. recursing")
-					saveDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, themeName, componentHomeDirectory)
+					saveDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, themeName, componentHomeDirectory, optionConfirm)
 				}
 			}
 		}
 	}
+}
+
+func saveThemeDecorationSafely(sourcePath string, destinationPath string, confirmCopy bool) error {
+	if confirmCopy {
+		destinationPathList := strings.Split(destinationPath, string(filepath.Separator))
+		message := "Save " + filepath.Join(destinationPathList[len(destinationPathList) - 2:]...)
+		if ConfirmActionCustomBack(message, sourcePath, "Skip") {
+			return CopyFile(sourcePath, destinationPath)
+		}
+		return nil
+	}
+
+	return CopyFile(sourcePath, destinationPath)
+}
+
+func resetThemeDecorationSafely(sourcePath string, confirmCopy bool) bool {
+	if confirmCopy {
+		message := "Clear " + sourcePath
+		if ConfirmActionCustomBack(message, sourcePath, "Skip") {
+			return common.DeleteFile(sourcePath)
+		}
+		return false
+	}
+
+	return common.DeleteFile(sourcePath)
 }
 
 func resetToDefaultRequestedComponents(components []models.Component, options models.ComponentOptionSelections) error {
@@ -754,18 +793,18 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 		if component.ComponentType.ContainsMetaFiles && !options.OptionInactive {
 			switch component.ComponentType.ComponentType {
 				case ComponentTypeIcon:
-					common.DeleteFile("/mnt/SDCARD/.media/Collections.png")
-					common.DeleteFile("/mnt/SDCARD/.media/Recently Played.png")
-					common.DeleteFile("/mnt/SDCARD/Tools/.media/tg5040.png")
+					resetThemeDecorationSafely("/mnt/SDCARD/.media/Collections.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/.media/Recently Played.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/Tools/.media/tg5040.png", options.OptionConfirm)
 				case ComponentTypeWallpaper:
-					common.DeleteFile("/mnt/SDCARD/Collections/.media/bg.png")
-					common.DeleteFile("/mnt/SDCARD/Recently Played/.media/bg.png")
-					common.DeleteFile("/mnt/SDCARD/Tools/tg5040/.media/bg.png")
-					common.DeleteFile("/mnt/SDCARD/bg.png")
+					resetThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bg.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bg.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bg.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/bg.png", options.OptionConfirm)
 				case ComponentTypeListWallpaper:
-					common.DeleteFile("/mnt/SDCARD/Collections/.media/bglist.png")
-					common.DeleteFile("/mnt/SDCARD/Recently Played/.media/bglist.png")
-					common.DeleteFile("/mnt/SDCARD/Tools/tg5040/.media/bglist.png")
+					resetThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bglist.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bglist.png", options.OptionConfirm)
+					resetThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bglist.png", options.OptionConfirm)
 			}
 		}
 		// Add component directories and types to map while looping
@@ -795,14 +834,14 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	for homeDirectory, homeDirectoryComponentTypes := range homeDirectories {
 		isRomDependent := checkComponentForRomsDependency(homeDirectory)
 		if !options.OptionInactive || isRomDependent {
-			resetDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, homeDirectory)
+			resetDecorations(homeDirectory, isRomDependent, validParents, false, homeDirectoryComponentTypes, homeDirectory, options.OptionConfirm)
 		}
 	}
 
 	return nil
 }
 
-func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, componentHomeDirectory string) {
+func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, componentHomeDirectory string, optionConfirm bool) {
 	currentDirectory := filepath.Base(currentPath)
 	isMedia := false
 	if currentDirectory == ".media" {
@@ -831,13 +870,13 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 				}
 				// Check for matches to components then remove if found
 				if isMediaBg && componentTypes[ComponentTypeWallpaper] {
-					common.DeleteFile(filepath.Join(currentPath, itemName))
+					resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
 				}
 				if isMediaBgList && componentTypes[ComponentTypeListWallpaper] {
-					common.DeleteFile(filepath.Join(currentPath, itemName))
+					resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
 				}
 				if isFolderIcon && componentTypes[ComponentTypeIcon] {
-					common.DeleteFile(filepath.Join(currentPath, itemName))
+					resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
 				}
 			}
 		} else {
@@ -846,7 +885,7 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 			toolsFolder := (componentHomeDirectory == ToolsDirectory && !(currentPath == componentHomeDirectory || filepath.Dir(currentPath) == componentHomeDirectory))
 			if file.IsDir() && !portsFolder && !toolsFolder {
 				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
-					resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, componentHomeDirectory)
+					resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, componentHomeDirectory, optionConfirm)
 				}
 			}
 		}
