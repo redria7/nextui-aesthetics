@@ -613,6 +613,7 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 					modifyCount = modifyCount + saveThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"), options.OptionConfirm)
 					modifyCount = modifyCount + saveThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Tools.png"), options.OptionConfirm)
 					modifyCount = modifyCount + saveThemeDecorationSafely("/mnt/SDCARD/bg.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Root.png"), options.OptionConfirm)
+					gaba.ResetBackground()
 				case ComponentTypeListWallpaper:
 					modifyCount = modifyCount + saveThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Collections.png"), options.OptionConfirm)
 					modifyCount = modifyCount + saveThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bglist.png", filepath.Join(ThemesDirectory, themeName, component.ComponentName, "Recently Played.png"), options.OptionConfirm)
@@ -805,6 +806,7 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 					modifyCount = modifyCount + resetThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bg.png", options.OptionConfirm)
 					modifyCount = modifyCount + resetThemeDecorationSafely("/mnt/SDCARD/Tools/tg5040/.media/bg.png", options.OptionConfirm)
 					modifyCount = modifyCount + resetThemeDecorationSafely("/mnt/SDCARD/bg.png", options.OptionConfirm)
+					gaba.ResetBackground()
 				case ComponentTypeListWallpaper:
 					modifyCount = modifyCount + resetThemeDecorationSafely("/mnt/SDCARD/Collections/.media/bglist.png", options.OptionConfirm)
 					modifyCount = modifyCount + resetThemeDecorationSafely("/mnt/SDCARD/Recently Played/.media/bglist.png", options.OptionConfirm)
@@ -958,6 +960,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 											metaFileCopied = true
 										case "Root.png":
 											modifyCount = modifyCount + applyThemeDecorationSafely(filepath.Join(componentPath, file.Name()), "/mnt/SDCARD/bg.png", options.OptionPreserve, options.OptionConfirm)
+											gaba.ResetBackground()
 											metaFileCopied = true
 									}
 								case ComponentTypeListWallpaper:

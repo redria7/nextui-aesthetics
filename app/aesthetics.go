@@ -384,6 +384,9 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			decoration := result.(models.Decoration)
 			if confirmDeletion("Delete this decoration from:\n" + splitPathToLines(decoration.DecorationPath), decoration.DecorationPath) {
 				res := common.DeleteFile(decoration.DecorationPath)
+				if decoration.DecorationPath == "/mnt/SDCARD/bg.png" {
+					gaba.ResetBackground()
+				}
 				if res {
 					// Successful file deletion. Clear from aggregations
 					// TODO: Possibly run additional logic checks to change selected item state?
@@ -451,6 +454,9 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 			destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.Path)
 		case ui.SelectWallpaperName:
 			destinationPath = utils.GetTrueWallpaperPath(currentPath)
+			if destinationPath == "/mnt/SDCARD/bg.png" {
+				gaba.ResetBackground()
+			}
 		case ui.SelectListWallpaperName:
 			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 	}
