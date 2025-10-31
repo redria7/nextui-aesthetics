@@ -587,7 +587,7 @@ func generateThemeName() (string, error) {
 		if attemptNumber == 1 {
 			suffix = ""
 		} else {
-			suffix = " (" + string(attemptNumber) + ")"
+			suffix = " (" + strconv.Itoa(attemptNumber) + ")"
 		}
 		if !DoesFileExists(filepath.Join(ThemesDirectory, themeName + suffix)) {
 			return themeName + suffix, nil
@@ -668,7 +668,7 @@ func genNumberedConsoleTag(consoleDirectory string, validRomParents map[string][
 			if listLength == 1 {
 				return consoleTag
 			}
-			return consoleTag + consoleDelimiter + string(index)
+			return consoleTag + consoleDelimiter + strconv.Itoa(index)
 		}
 	}
 	return ""
@@ -1053,7 +1053,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 								if consoleTag != filePathParts[0] {
 									parentNumber = collectConsoleDelimitedNumber(filePathParts[0])
 									if parentNumber != consoleDelimitedCountDefault {
-										romParentSetTag = romParentSetTag + string(parentNumber)
+										romParentSetTag = romParentSetTag + strconv.Itoa(parentNumber)
 									}
 								}
 								parentConsoleNameList := validParents[consoleTag]

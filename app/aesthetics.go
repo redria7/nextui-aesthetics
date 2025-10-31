@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"strconv"
 
 	_ "github.com/UncleJunVIP/certifiable"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
@@ -232,11 +233,11 @@ func handleManageThemeComponentOptionsTransition(currentScreen models.Screen, re
 			res, _, modifyCount := utils.ApplyThemeComponentUpdates(mtco.Theme, mtco.Components, selectedOptions)
 			state.ClearDecorationAggregations()
 			if res != "" {
-				utils.ShowTimedMessage("Encountered error while " + res + "\nStopping and returning\n" + string(modifyCount) + " updates made", longMessageDelay)
+				utils.ShowTimedMessage("Encountered error while " + res + "\nStopping and returning\n" + strconv.Itoa(modifyCount) + " updates made", longMessageDelay)
 				state.UpdateCurrentMenuPosition(0, 0)
 				return ui.InitManageThemeComponentOptions(mtco.Theme, mtco.Components, mtco.ClearSelected)
 			} else {
-				utils.ShowTimedMessage(string(modifyCount) + " updates made", shortMessageDelay)
+				utils.ShowTimedMessage(strconv.Itoa(modifyCount) + " updates made", shortMessageDelay)
 			}
 	}
 	state.RemoveMenuPositions(1)
