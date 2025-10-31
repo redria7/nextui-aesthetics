@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"strconv"
 
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/filebrowser"
@@ -19,6 +20,8 @@ import (
 const (
 	softConsole	= "(misc)"
 	folderDelimiter = "`~`"
+	consoleDelimiter = "`-`"
+	consoleDelimitedCountDefault = -1
 )
 
 func GenerateDecorationAggregations() (consoleAggregationList []models.ConsoleAggregation, directoryAggregationList []models.DirectoryAggregation) {
@@ -628,18 +631,19 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	}
 	
 	// Collect valid parent directories for rom dependent directories
-	validParents := make(map[string]bool)
+	validParents := make(map[string][]string)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return modifyCount, err
 	}
 	for _, parent := range parentsList {
+		parentConsole := FindConsoleTag(parent.Filename)
 		if options.OptionInactive {
 			if parent.DirectoryFileCount == 0 {
-				validParents[parent.Filename] = true
+				validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 			}
 		} else {
-			validParents[parent.Filename] = true
+			validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 		}
 	}
 
@@ -652,7 +656,38 @@ func saveCurrentTheme(components []models.Component, options models.ComponentOpt
 	return modifyCount, nil
 }
 
-func saveDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, themeName string, componentHomeDirectory string, optionConfirm bool) int {
+func genNumberedConsoleTag(consoleDirectory string, validRomParents map[string][]string) string {
+	consoleTag := FindConsoleTag(consoleDirectory)
+	if consoleTag == "" {
+		return ""
+	}
+	validParentList := validRomParents[consoleTag]
+	listLength := len(validParentList)
+	for index, validParentDirectory := range validParentList {
+		if validParentDirectory == consoleDirectory {
+			if listLength == 1 {
+				return consoleTag
+			}
+			return consoleTag + consoleDelimiter + string(index)
+		}
+	}
+	return ""
+}
+
+func collectConsoleDelimitedNumber(delimitedName string) int {
+	consoleParts := strings.Split(delimitedName, consoleDelimiter)
+	if len(consoleParts) <= 1 {
+		return consoleDelimitedCountDefault
+	}
+	delimitedNumber := consoleParts[1]
+	realNumber, err := strconv.Atoi(delimitedNumber)
+	if err != nil {
+		return consoleDelimitedCountDefault
+	}
+	return realNumber
+}
+
+func saveDecorations(currentPath string, isRomDependent bool, validRomParents map[string][]string, romParentValidated bool, componentTypes map[string]bool, themeName string, componentHomeDirectory string, optionConfirm bool) int {
 	modifyCount := 0
 
 	currentDirectory := filepath.Base(currentPath)
@@ -703,7 +738,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				// Copy file to theme directory with appropriate name
 				if isMediaBg && componentTypes[ComponentTypeWallpaper] && len(decorationPathList) > 0 {
 					if isRomDependent {
-						decorationPathList[0] = FindConsoleTag(decorationPathList[0])
+						decorationPathList[0] = genNumberedConsoleTag(decorationPathList[0], validRomParents)
 					}
 					if decorationPathList[0] != "" {
 						destinationName := strings.Join(decorationPathList, folderDelimiter)
@@ -712,7 +747,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				}
 				if isMediaBgList && componentTypes[ComponentTypeListWallpaper] && len(decorationPathList) > 0 {
 					if isRomDependent {
-						decorationPathList[0] = FindConsoleTag(decorationPathList[0])
+						decorationPathList[0] = genNumberedConsoleTag(decorationPathList[0], validRomParents)
 					}
 
 					if decorationPathList[0] != "" {
@@ -723,15 +758,7 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 				if isFolderIcon && componentTypes[ComponentTypeIcon] {
 					iconDecorationPathList := append(decorationPathList, strings.TrimSuffix(itemName, itemExt))
 					if isRomDependent {
-						if romParentValidated {
-							iconDecorationPathList[0] = FindConsoleTag(iconDecorationPathList[0])
-						} else {
-							if validRomParents[iconDecorationPathList[0]] {
-								iconDecorationPathList[0] = FindConsoleTag(iconDecorationPathList[0])
-							} else {
-								iconDecorationPathList[0] = ""
-							}
-						}
+						iconDecorationPathList[0] = genNumberedConsoleTag(iconDecorationPathList[0], validRomParents)
 					}
 
 					if iconDecorationPathList[0] != "" {
@@ -745,7 +772,17 @@ func saveDecorations(currentPath string, isRomDependent bool, validRomParents ma
 			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && !(filepath.Dir(currentPath) == componentHomeDirectory || filepath.Dir(filepath.Dir(currentPath)) == componentHomeDirectory))
 			toolsFolder := (componentHomeDirectory == ToolsDirectory && !(currentPath == componentHomeDirectory || filepath.Dir(currentPath) == componentHomeDirectory))
 			if file.IsDir() && !portsFolder && !toolsFolder {
-				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
+				if isRomDependent && !romParentValidated {
+					itemConsole := FindConsoleTag(itemName)
+					validParentList := validRomParents[itemConsole]
+					for _, parentDirectory := range validParentList {
+						if parentDirectory == itemName {
+							romParentValidated = true
+							break
+						}
+					}
+				}
+				if !isRomDependent || romParentValidated || itemName == ".media" {
 					modifyCount = modifyCount + saveDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, themeName, componentHomeDirectory, optionConfirm)
 				}
 			}
@@ -821,18 +858,19 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	}
 	
 	// Collect valid parent directories for rom dependent directories
-	validParents := make(map[string]bool)
+	validParents := make(map[string][]string)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return modifyCount, err
 	}
 	for _, parent := range parentsList {
+		parentConsole := FindConsoleTag(parent.Filename)
 		if options.OptionInactive {
 			if parent.DirectoryFileCount == 0 {
-				validParents[parent.Filename] = true
+				validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 			}
 		} else {
-			validParents[parent.Filename] = true
+			validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 		}
 	}
 
@@ -847,7 +885,7 @@ func resetToDefaultRequestedComponents(components []models.Component, options mo
 	return modifyCount, nil
 }
 
-func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string]bool, romParentValidated bool, componentTypes map[string]bool, componentHomeDirectory string, optionConfirm bool) int {
+func resetDecorations(currentPath string, isRomDependent bool, validRomParents map[string][]string, romParentValidated bool, componentTypes map[string]bool, componentHomeDirectory string, optionConfirm bool) int {
 	modifyCount := 0
 	currentDirectory := filepath.Base(currentPath)
 	isMedia := false
@@ -883,7 +921,19 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 					modifyCount = modifyCount + resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
 				}
 				if isFolderIcon && componentTypes[ComponentTypeIcon] {
-					modifyCount = modifyCount + resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
+					if !romParentValidated {
+						itemBase := strings.TrimSuffix(itemName, itemExt)
+						itemConsole := FindConsoleTag(itemBase)
+						validParentList := validRomParents[itemConsole]
+						for _, parentDirectory := range validParentList {
+							if parentDirectory == itemBase {
+								modifyCount = modifyCount + resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
+								break
+							}
+						}
+					} else {
+						modifyCount = modifyCount + resetThemeDecorationSafely(filepath.Join(currentPath, itemName), optionConfirm)
+					}
 				}
 			}
 		} else {
@@ -891,7 +941,17 @@ func resetDecorations(currentPath string, isRomDependent bool, validRomParents m
 			portsFolder := (FindConsoleTag(currentPath) == "(PORTS)" && componentHomeDirectory == "/mnt/SDCARD/Roms" && !(filepath.Dir(currentPath) == componentHomeDirectory || filepath.Dir(filepath.Dir(currentPath)) == componentHomeDirectory))
 			toolsFolder := (componentHomeDirectory == ToolsDirectory && !(currentPath == componentHomeDirectory || filepath.Dir(currentPath) == componentHomeDirectory))
 			if file.IsDir() && !portsFolder && !toolsFolder {
-				if !isRomDependent || romParentValidated || itemName == ".media" || validRomParents[itemName] {
+				if isRomDependent && !romParentValidated {
+					itemConsole := FindConsoleTag(itemName)
+					validParentList := validRomParents[itemConsole]
+					for _, parentDirectory := range validParentList {
+						if parentDirectory == itemName {
+							romParentValidated = true
+							break
+						}
+					}
+				}
+				if !isRomDependent || romParentValidated || itemName == ".media" {
 					modifyCount = modifyCount + resetDecorations(filepath.Join(currentPath, itemName), isRomDependent, validRomParents, true, componentTypes, componentHomeDirectory, optionConfirm)
 				}
 			}
@@ -905,18 +965,19 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 	modifyCount := 0
 	
 	// Collect valid parent directories for non-meta components
-	validParents := make(map[string]string)
+	validParents := make(map[string][]string)
 	parentsList, err := getTopLevelRomsDirectories(options.OptionActive)
 	if err != nil {
 		return modifyCount, err
 	}
 	for _, parent := range parentsList {
+		parentConsole := FindConsoleTag(parent.Filename)
 		if options.OptionInactive {
 			if parent.DirectoryFileCount == 0 {
-				validParents[FindConsoleTag(parent.Filename)] = parent.Filename
+				validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 			}
 		} else {
-			validParents[FindConsoleTag(parent.Filename)] = parent.Filename
+			validParents[parentConsole] = append(validParents[parentConsole], parent.Filename)
 		}
 	}
 
@@ -981,53 +1042,81 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 							// File is not a meta file, move if possible
 							itemBase := strings.TrimSuffix(itemName, itemExt)
 							filePathParts := strings.Split(itemBase, folderDelimiter)
+							filePathPartsList := [][]string{}
 							tryToPlace := true
 							if isRomDependent {
 								// Rom dependent file. Replace the first piece of the name with the user's console directory. 
 								// If the item is for that console directtory and is not the first item for that console directory, then skip.
 								consoleTag := FindConsoleTag(filePathParts[0])
-								parentConsoleName := validParents[consoleTag]
-								if parentConsoleName == "" {
+								romParentSetTag := consoleTag
+								parentNumber := consoleDelimitedCountDefault
+								if consoleTag != filePathParts[0] {
+									parentNumber = collectConsoleDelimitedNumber(filePathParts[0])
+									if parentNumber != consoleDelimitedCountDefault {
+										romParentSetTag = romParentSetTag + string(parentNumber)
+									}
+								}
+								parentConsoleNameList := validParents[consoleTag]
+								parentConsoleNameListLength := len(parentConsoleNameList)
+								if parentConsoleNameListLength == 0 {
 									tryToPlace = false
 								} else {
-									if len(filePathParts) == 1 {
-										if romParentSet[consoleTag] {
-											tryToPlace = false
-										} else {
-											romParentSet[consoleTag] = true
+									// Add path parts to list of targets for every valid match
+									if parentNumber == consoleDelimitedCountDefault {
+										for _, parentConsoleDirectory := range parentConsoleNameList {
+											singlefilePathParts := append([]string{}, filePathParts...)
+											singlefilePathParts[0] = parentConsoleDirectory
+											filePathPartsList = append(filePathPartsList, singlefilePathParts)
+										}
+									} else {
+										if parentConsoleNameListLength > parentNumber && parentNumber < 0 {
+											singlefilePathParts := append([]string{}, filePathParts...)
+											singlefilePathParts[0] = parentConsoleNameList[parentNumber]
+											filePathPartsList = append(filePathPartsList, singlefilePathParts)
 										}
 									}
-									filePathParts[0] = parentConsoleName
+									// don't place if this image name format has been placed already
+									if len(filePathParts) == 1 {
+										if romParentSet[romParentSetTag] {
+											tryToPlace = false
+										} else {
+											romParentSet[romParentSetTag] = true
+										}
+									}
 								}
+							} else {
+								filePathPartsList = append(filePathPartsList, filePathParts)
 							}
 							if tryToPlace {
-								// file has a valid parent. Move if the parent directory exists
-								filePathParts = append([]string{component.ComponentType.ComponentHomeDirectory}, filePathParts...)
-								parentConsoleDirectory := filepath.Join(filePathParts...)
-								if component.ComponentType.ComponentHomeDirectory == GetCollectionDirectory() {
-									if !DoesFileExists(parentConsoleDirectory) {
-										parentConsoleDirectory = parentConsoleDirectory + ".txt"
+								for _, filePathPartsIndividual := range filePathPartsList {
+									// file has a valid parent. Move if the parent directory exists
+									filePathPartsIndividual = append([]string{component.ComponentType.ComponentHomeDirectory}, filePathPartsIndividual...)
+									parentConsoleDirectory := filepath.Join(filePathPartsIndividual...)
+									if component.ComponentType.ComponentHomeDirectory == GetCollectionDirectory() {
+										if !DoesFileExists(parentConsoleDirectory) {
+											parentConsoleDirectory = parentConsoleDirectory + ".txt"
+										}
 									}
-								}
-								if component.ComponentType.ComponentHomeDirectory == ToolsDirectory {
-									if !DoesFileExists(parentConsoleDirectory) {
-										parentConsoleDirectory = parentConsoleDirectory + ".pak"
+									if component.ComponentType.ComponentHomeDirectory == ToolsDirectory {
+										if !DoesFileExists(parentConsoleDirectory) {
+											parentConsoleDirectory = parentConsoleDirectory + ".pak"
+										}
 									}
-								}
-								if DoesFileExists(parentConsoleDirectory) {
-									// File exists. Collect the destination path then copy
-									destinationPath := ""
-									switch component.ComponentType.ComponentType {
-										case ComponentTypeIcon:
-											parentPath := filepath.Join(filePathParts[:len(filePathParts) - 1]...)
-											destinationPath = GetTrueIconPath(parentPath, parentConsoleDirectory)
-										case ComponentTypeWallpaper:
-											destinationPath = GetTrueWallpaperPath(parentConsoleDirectory)
-										case ComponentTypeListWallpaper:
-											destinationPath = GetTrueListWallpaperPath(parentConsoleDirectory)
-									}
-									if destinationPath != "" {
-										modifyCount = modifyCount + applyThemeDecorationSafely(filepath.Join(componentPath, itemName), destinationPath, options.OptionPreserve, options.OptionConfirm)
+									if DoesFileExists(parentConsoleDirectory) {
+										// File exists. Collect the destination path then copy
+										destinationPath := ""
+										switch component.ComponentType.ComponentType {
+											case ComponentTypeIcon:
+												parentPath := filepath.Join(filePathPartsIndividual[:len(filePathPartsIndividual) - 1]...)
+												destinationPath = GetTrueIconPath(parentPath, parentConsoleDirectory)
+											case ComponentTypeWallpaper:
+												destinationPath = GetTrueWallpaperPath(parentConsoleDirectory)
+											case ComponentTypeListWallpaper:
+												destinationPath = GetTrueListWallpaperPath(parentConsoleDirectory)
+										}
+										if destinationPath != "" {
+											modifyCount = modifyCount + applyThemeDecorationSafely(filepath.Join(componentPath, itemName), destinationPath, options.OptionPreserve, options.OptionConfirm)
+										}
 									}
 								}
 							}
