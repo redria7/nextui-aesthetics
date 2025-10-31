@@ -19,8 +19,8 @@ import (
 
 const (
 	softConsole	= "(misc)"
-	folderDelimiter = "`~`"
-	consoleDelimiter = "`-`"
+	folderDelimiter = "[~]"
+	consoleDelimiter = "[-]"
 	consoleDelimitedCountDefault = -1
 )
 
@@ -992,7 +992,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 				for _, file := range files {
 					itemName := file.Name()
 					itemExt := filepath.Ext(itemName)
-					if filepath.Ext(itemName) == ".png" {
+					if itemExt == ".png" {
 						metaFileCopied := false
 						if component.ComponentType.ContainsMetaFiles {
 							switch component.ComponentType.ComponentType {
@@ -1069,7 +1069,7 @@ func applySelectedThemeComponents(theme models.Theme, components []models.Compon
 											filePathPartsList = append(filePathPartsList, singlefilePathParts)
 										}
 									} else {
-										if parentConsoleNameListLength > parentNumber && parentNumber < 0 {
+										if parentConsoleNameListLength > parentNumber && parentNumber >= 0 {
 											singlefilePathParts := append([]string{}, filePathParts...)
 											singlefilePathParts[0] = parentConsoleNameList[parentNumber]
 											filePathPartsList = append(filePathPartsList, singlefilePathParts)
