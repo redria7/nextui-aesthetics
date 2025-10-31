@@ -8,9 +8,10 @@ import (
 	"nextui-aesthetics/ui"
 	"nextui-aesthetics/utils"
 	"os"
+	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 
 	_ "github.com/UncleJunVIP/certifiable"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
@@ -103,6 +104,8 @@ func handleScreenTransition(currentScreen models.Screen, result interface{}, cod
 			return handleDownloadThemeConfirmationTransition(currentScreen, result, code)
 		case models.ScreenNames.ManageThemes:
 			return handleManageThemesTransition(result, code)
+		case models.ScreenNames.ManageThemeOptions:
+			return handleManageThemeOptionsTransition(currentScreen, result, code)
 		case models.ScreenNames.ManageThemeComponents:
 			return handleManageThemeComponentsTransition(currentScreen, result, code)
 		case models.ScreenNames.ManageThemeComponentOptions:
@@ -155,20 +158,72 @@ func handleManageThemesTransition(result interface{}, code int) models.Screen {
 			state.AddNewMenuPosition()
 			return ui.InitManageThemeComponents(result.(models.Theme))
 		case utils.ExitCodeAction:
-			theme := result.(models.Theme)
-			if confirmDeletion("Delete theme: " + theme.ThemeName + "?", utils.GetPreviewPath(theme.ThemeName)) {
-				res := common.DeleteFile(theme.ThemePath)
-				if res {
-					utils.ShowTimedMessage("Deleted " + theme.ThemeName, shortMessageDelay)
-					state.ClearDecorationAggregations()
-				} else {
-					utils.ShowTimedMessage("Failed to delete " + theme.ThemeName, shortMessageDelay)
-				}
-			}
-			return ui.InitManageThemes()
+			state.AddNewMenuPosition()
+			return ui.InitManageThemeOptions(result.(models.Theme))
 	}
 	state.ReturnToMain()
 	return ui.InitMainMenu()
+}
+
+func handleManageThemeOptionsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {
+	mto := currentScreen.(ui.ManageThemeOptions)
+	switch code {
+		case utils.ExitCodeSelect:
+			switch result.(string) {
+				case ui.DeleteDisplayName:
+					if confirmDeletion("Delete theme: " + mto.Theme.ThemeName + "?", utils.GetPreviewPath(mto.Theme.ThemeName)) {
+						res := common.DeleteFile(mto.Theme.ThemePath)
+						if res {
+							utils.ShowTimedMessage("Deleted " + mto.Theme.ThemeName, shortMessageDelay)
+							state.ClearDecorationAggregations()
+						} else {
+							utils.ShowTimedMessage("Failed to delete " + mto.Theme.ThemeName, shortMessageDelay)
+						}
+					}
+					state.RemoveMenuPositions(1)
+					return ui.InitManageThemes()
+				case ui.RenameDisplayName:
+					updatedTheme := renameTheme(mto.Theme)
+					return ui.InitManageThemeOptions(updatedTheme)
+			}
+	}
+	state.RemoveMenuPositions(1)
+	return ui.InitManageThemes()
+}
+
+func renameTheme(theme models.Theme) models.Theme {
+	themeParent := filepath.Dir(theme.ThemePath)
+	newThemeName := theme.ThemeName
+	for {
+		res, err := gaba.Keyboard(newThemeName)
+		// if result is bad, bail out
+		if err != nil {
+			utils.ShowTimedMessage("Error encountered: " + err.Error(), longMessageDelay)
+			return theme
+		}
+		if !res.IsSome() {
+			return theme
+		}
+		newThemeName = res.Unwrap()
+		if newThemeName == "" || newThemeName == "." || strings.Contains(newThemeName, "/") {
+			return theme
+		}
+
+		// If result looks valid, prep the results and check existence
+		newThemePath := filepath.Join(themeParent, newThemeName)
+		if utils.DoesFileExists(newThemePath) {
+			utils.ShowTimedMessage(newThemeName + "\ndirectory name is already in use.\nPlease choose a different name.", shortMessageDelay)
+		} else {
+			if err := utils.MoveFile(theme.ThemePath, newThemePath); err != nil {
+				utils.ShowTimedMessage("Error encountered: " + err.Error(), longMessageDelay)
+				return theme
+			}
+			theme.ThemePath = newThemePath
+			theme.ThemeName = newThemeName
+			utils.ShowTimedMessage("Theme renamed: " + theme.ThemeName, shortMessageDelay)
+			return theme
+		}
+	}
 }
 
 func handleManageThemeComponentsTransition(currentScreen models.Screen, result interface{}, code int) models.Screen {

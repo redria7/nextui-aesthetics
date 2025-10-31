@@ -66,7 +66,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "X", HelpText: "Delete"},
+		{ButtonName: "X", HelpText: "Options"},
 		{ButtonName: "A", HelpText: "Select"},
 	}
 
