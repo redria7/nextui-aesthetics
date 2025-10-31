@@ -286,6 +286,7 @@ func handleManageThemeComponentOptionsTransition(currentScreen models.Screen, re
 		case utils.ExitCodeSelect:
 			selectedOptions := result.(models.ComponentOptionSelections)
 			res, _, modifyCount := utils.ApplyThemeComponentUpdates(mtco.Theme, mtco.Components, selectedOptions)
+			gaba.ResetBackground()
 			state.ClearDecorationAggregations()
 			if res != "" {
 				utils.ShowTimedMessage("Encountered error while " + res + "\nStopping and returning\n" + strconv.Itoa(modifyCount) + " updates made", longMessageDelay)
@@ -394,6 +395,7 @@ func handleDecorationOptionsTransition(currentScreen models.Screen, result inter
 						state.UpdateCurrentMenuPosition(0, 0)
 						res := common.DeleteFile(destinationPath)
 						if res {
+							gaba.ResetBackground()
 							utils.ShowTimedMessage(fmt.Sprintf("Deleted:\n%s", splitPathToLines(destinationPath)), shortMessageDelay)
 						} else {
 							utils.ShowTimedMessage(fmt.Sprintf("Failed to delete:%s", splitPathToLines(destinationPath)), shortMessageDelay)
@@ -440,9 +442,6 @@ func handleDecorationBrowserTransition(currentScreen models.Screen, result inter
 			decoration := result.(models.Decoration)
 			if confirmDeletion("Delete this decoration from:\n" + splitPathToLines(decoration.DecorationPath), decoration.DecorationPath) {
 				res := common.DeleteFile(decoration.DecorationPath)
-				if decoration.DecorationPath == "/mnt/SDCARD/bg.png" {
-					gaba.ResetBackground()
-				}
 				if res {
 					// Successful file deletion. Clear from aggregations
 					// TODO: Possibly run additional logic checks to change selected item state?
@@ -510,9 +509,6 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 			destinationPath = utils.GetTrueIconPath(parentPath, currentDirectory.Path)
 		case ui.SelectWallpaperName:
 			destinationPath = utils.GetTrueWallpaperPath(currentPath)
-			if destinationPath == "/mnt/SDCARD/bg.png" {
-				gaba.ResetBackground()
-			}
 		case ui.SelectListWallpaperName:
 			destinationPath = utils.GetTrueListWallpaperPath(currentPath)
 	}
@@ -523,6 +519,9 @@ func copyFile(romDirectoryList []shared.RomDirectory, listWallpaperSelected bool
 		if err != nil {
 			utils.ShowTimedMessage("Unable to copy image!", longMessageDelay)
 			return ui.InitDecorationBrowser(romDirectoryList, listWallpaperSelected, decorationType, decorationBrowserIndex)
+		}
+		if destinationPath == "/mnt/SDCARD/bg.png" {
+			gaba.ResetBackground()
 		}
 		utils.ShowTimedMessage("Image copied successfully!", shortMessageDelay)
 		state.RemoveMenuPositions(2)
