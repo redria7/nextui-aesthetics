@@ -12,20 +12,20 @@ const (
 	// DownloadThemesDisplayName	= "Download Themes"
 	// ManageThemesDisplayName		= "Manage Themes"
 	// DecorationsDisplayName 		= "Set Wallpapers & Icons"
-	SaveForAllName			= "Save components: for all content"
-	SaveForContentOnlyName	= "Save components: for active content"
-	SaveAllConfirm			= "Save all components with individual confirmations"
-	ClearContentOnlyName	= "Revert components to default: for active content"
-	ClearNonContentOnlyName	= "Revert components to default: for inactive content"
-	ClearAllName			= "Revert components to default: for all content"
-	ClearAllConfirm			= "Revert all components with individual confirmations"
-	ApplyActiveAndClearName	= "Clear components then apply: for active content"
-	ApplyAllAndClearName	= "Clear components then apply: for all content"
-	ApplyActiveOverwrite	= "Apply components without clearing: for active content"
-	ApplyAllOverwrite		= "Apply components without clearing: for all content"
-	ApplyActivePreserve		= "Apply only missing components: for active content"
-	ApplyAllPreserve		= "Apply only missing components: for all content"
-	ApplyAllConfirm			= "Apply all components with individual confirmations"
+	SaveForAllName			= "Save: All"
+	SaveForContentOnlyName	= "Save: + Active Consoles"
+	SaveAllConfirm			= "Save: All: With Confirmations"
+	ClearContentOnlyName	= "Revert to Default | + Active Consoles"
+	ClearNonContentOnlyName	= "Revert to Default | Empty Consoles Only"
+	ClearAllName			= "Revert to Default | All"
+	ClearAllConfirm			= "Revert to Default | All | With Confirmations"
+	ApplyActiveAndClearName	= "Clear & Apply | + Active Consoles"
+	ApplyAllAndClearName	= "Clear & Apply | All"
+	ApplyActiveOverwrite	= "Apply | + Active Consoles"
+	ApplyAllOverwrite		= "Apply | All"
+	ApplyActivePreserve		= "Apply | Missing Only | + Active Consoles"
+	ApplyAllPreserve		= "Apply | Missing Only | All"
+	ApplyAllConfirm			= "Apply | All | With Confirmations"
 )
 
 type ManageThemeComponentOptions struct{
@@ -204,10 +204,14 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 	options.EnableHelp = true
 	options.HelpTitle = "Component Management Options"
 	options.HelpText = []string{
-		"'Active' content is ROM directories that contain ROMs as some depth",
-		"Reverting to default will clear applied theme images",
-		"Clearing before applying will clear applied theme images for a clean application",
-		"Applying without clearing will only overwrite current images found in the selected theme components",
+		"• 'Active Consoles' have roms inside!",
+		"• 'Empty Consoles' have no roms :(",
+		"• 'Save' saves a new theme in:",
+		"      .userdata/shared/Aesthetics/Themes",
+		"• 'Revert to Default' returns component(s) to",
+		"      NextUI default settings",
+		"• 'Apply' applies the selected components",
+		"• 'Clear & Apply' reverts to default before applying",
 	}
 
 

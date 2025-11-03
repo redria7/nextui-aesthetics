@@ -34,7 +34,7 @@ func (mtc ManageThemeComponents) Draw() (interface{}, int, error) {
 	actionOption := "Clear"
 	selectOption := "Save"
 	selectHelp := "Save selected components into a theme"
-	actionHelp := "Revert selected components to default (stock) settings"
+	actionHelp := "Revert selected components to default settings"
 	if mtc.Theme != (models.Theme{}) {
 		themeTitle = mtc.Theme.ThemeName
 		actionOption = "Delete"
