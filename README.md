@@ -23,7 +23,10 @@ Download, Apply, Clear, and Export Aesthetic Properties: Theme management with U
 
 - Download Themes from https://github.com/Leviathanium/NextUI-Themes
 - Upload Themes manually to your SD Card under .userdata/shared/Aesthetics/Themes
-- Delete Themes on device
+- Apply Themes completely or partially
+- Save your current Theme locally
+- Rename existing Themes
+- Delete Themes (or Theme Components) on device
 - Update menu Wallpapers and Icons using any box art, screenshot, or downloaded theme image, organized by directory or console
 - More to come!
 
@@ -51,12 +54,19 @@ First, ensure the Themes directory exists in the expected location on your SD Ca
 
 Themes should be saved in a non-zip format with a top level directory indicating the name of the theme (Themes/YourCoolTheme).
 
-Inside your theme directory, save your .png files inside directories indicating their intended purpose. Currently downloadable themes usually use:
-- CollectionIcons
+Inside your theme directory, save your .png files inside directories indicating their intended purpose. For bulk applying, expected directories are:
 - SystemIcons
-- ToolIcons
-- CollectionWallpapers
-- ListWallpapers
 - SystemWallpapers
+- SystemListWallpapers
+- CollectionIcons
+- CollectionWallpapers
+- CollectionListWallpapers
+- ToolIcons
+- ToolWallpapers
+- ToolListWallpapers
 
-Also ensure your image files contain a system tag like (GB) matching the tags used in NextUI to benefit from console grouping.
+To apply a theme directly, ensure image files contain a system tag like (GB) inside the System directories. System images are also saved in the appropriate System directories as :
+- Root.png (the default wallpaper)
+- Collections.png (for the collections menu)
+- Recently Played.png (for the recently played menu)
+- Tools.png (for the tools menu)

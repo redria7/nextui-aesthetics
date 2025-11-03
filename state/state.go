@@ -139,6 +139,13 @@ func updateDecorationAggregations() {
 	UpdateAppState(temp)
 }
 
+func ClearDecorationAggregations() {
+	temp := GetAppState()
+	temp.DecorationsAggregatedOnConsoles = nil
+	temp.DecorationsAggregatedOnDirectories = nil
+	UpdateAppState(temp)
+}
+
 func GetThemeCatalog() []models.ThemeSummary {
 	temp := GetAppState()
 	if temp.ThemeCatalog == nil {

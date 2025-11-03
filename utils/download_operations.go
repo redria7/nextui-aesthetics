@@ -354,5 +354,9 @@ func GetPreviewPath(themeName string) string {
 	if DoesFileExists(normalPath) {
 		return normalPath
 	}
-	return filepath.Join(themePath, previewHiddenName)
+	hiddenPath := filepath.Join(themePath, previewHiddenName)
+	if DoesFileExists(hiddenPath) {
+		return hiddenPath
+	}
+	return ""
 }

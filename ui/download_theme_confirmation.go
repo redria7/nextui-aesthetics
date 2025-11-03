@@ -43,8 +43,8 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 	sections = append(sections, gaba.NewImageSection(
 		"",
 		utils.GetPreviewPath(dtc.Theme.ThemeName),
-		int32(256),
-		int32(256),
+		int32(512),
+		int32(512),
 		gaba.TextAlignCenter,
 	))
 	sections = append(sections, gaba.NewInfoSection(

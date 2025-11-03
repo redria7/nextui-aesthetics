@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"sort"
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
@@ -29,8 +30,16 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 
 	// Add items to menu
 	currentThemes := utils.GetDownloadedThemes()
+	themeKeys := make([]string, len(currentThemes))
+	keyIndex := 0
+	for key, _ := range currentThemes {
+		themeKeys[keyIndex] = key
+		keyIndex++
+	}
+	sort.Strings(themeKeys)
 	var menuItems []gaba.MenuItem
-	for _, theme := range currentThemes {
+	for _, key := range themeKeys {
+		theme := currentThemes[key]
 		if theme.ContainsTheme {
 			menuItems = append(menuItems, gaba.MenuItem{
 				Text:     theme.ThemeName,
@@ -46,7 +55,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EnableAction = true
-	options.EmptyMessage = "No themes to delete! Go download some!"
+	options.EmptyMessage = "No themes to manage! Save or download some!"
 	options.EnableImages = true
 
 	// Set index
@@ -57,8 +66,8 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "X", HelpText: "Delete"},
-		//{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "X", HelpText: "Options"},
+		{ButtonName: "A", HelpText: "Select"},
 	}
 
 	// Wait for results
