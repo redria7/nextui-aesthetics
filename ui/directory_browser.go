@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"strconv"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
@@ -173,6 +174,7 @@ func buildCollectionsMenuItem(parentPath string, logger *zap.Logger) *gaba.MenuI
 }
 
 func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *zap.Logger) ([]gaba.MenuItem, error) {
+	logger.Error("Building directory menu for: " + currentDirectory.Path)
 	fb := filebrowser.NewFileBrowser(logger)
 
 	// If collection txt file, return empty
@@ -191,8 +193,11 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 	// Add every non-self-contained-game, non-empty folder to the list
 	var menuItems []gaba.MenuItem
 	for _, item := range fb.Items {
+		logger.Error("Item found filename: " + item.Filename + ", display name: " + item.DisplayName + ", is directory: " + strconv.FormatBool(item.IsDirectory) + ", is self contained directory: " + strconv.FormatBool(item.IsSelfContainedDirectory))
 		if (item.IsDirectory && !item.IsSelfContainedDirectory) || (utils.CheckIfCollectionTxtChild(item.Path)) {
+			logger.Error("building rom directory")
 			romDirectory := utils.CreateRomDirectoryFromItem(item)
+			logger.Error("rom directory built")
 			menuItem := gaba.MenuItem{
 				Text:     romDirectory.DisplayName,
 				Selected: false,
@@ -201,7 +206,9 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 				ImageFilename: utils.GetIconPath(currentDirectory.Path, romDirectory.Path),
 				BackgroundFilename: utils.GetWallpaperPath(romDirectory.Path, currentDirectory.Path),
 			}
+			logger.Error("menu item built")
 			menuItems = append(menuItems, menuItem)
+			logger.Error("menu item added")
 		}
 	}
 
