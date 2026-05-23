@@ -3,6 +3,7 @@ package ui
 import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	//"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/utils"
 	"qlova.tech/sum"
@@ -50,9 +51,9 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 	sections = append(sections, gaba.NewInfoSection(
 		"",
 		[]gaba.MetadataItem{
-			{Label: "File Type", 	Value: dtc.Theme.ThemeType},
-			{Label: "Author", 		Value: dtc.Theme.Author},
-			{Label: "Last Updated", Value: dtc.Theme.LastUpdated},
+			{Label: i18n.T("ae.info.file_type"),    Value: dtc.Theme.ThemeType},
+			{Label: i18n.T("ae.info.author"),       Value: dtc.Theme.Author},
+			{Label: i18n.T("ae.info.last_updated"), Value: dtc.Theme.LastUpdated},
 		},
 	))
 
@@ -62,12 +63,12 @@ func (dtc DownloadThemeConfirmation) Draw() (selection interface{}, exitCode int
 	options.ShowThemeBackground = false
 
 	// Set footers
-	confirmLabel := "Download"
+	confirmLabel := i18n.T("ae.btn.download")
 	if downloaded {
-		confirmLabel = "Re-Download"
+		confirmLabel = i18n.T("ae.btn.redownload")
 	}
 	footerItems := []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
 		{ButtonName: "A", HelpText: confirmLabel},
 	}
 

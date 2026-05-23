@@ -4,6 +4,7 @@ import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -30,7 +31,7 @@ func (dtb DownloadThemesBrowser) Name() sum.Int[models.ScreenName] {
 
 func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 	// Collect lists of themes available from the catalog, sorted into downloaded, new, and not downloaded buckets
-	title := "Downloadable Themes"
+	title := i18n.T("ae.title.download_themes")
 	themeCatalog := state.GetThemeCatalog()
 	currentThemes := utils.GetDownloadedThemes()
 	var newThemes []gaba.MenuItem
@@ -104,7 +105,7 @@ func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 
 		})
 	} else {
-		title = "Hidden Themes"
+		title = i18n.T("ae.title.hidden_themes")
 		menuItems = append(menuItems, hiddenThemes...)
 	}
 	
@@ -115,11 +116,11 @@ func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 	options.EnableImages = true
 	options.EnableAction = true
 	options.SmallTitle = true
-	options.EmptyMessage = "No themes hidden!"
+	options.EmptyMessage = i18n.T("ae.empty.no_hidden_themes")
 
 	// Set Help
 	options.EnableHelp = true
-	options.HelpTitle = "Downloadable Themes"
+	options.HelpTitle = i18n.T("ae.title.download_themes")
 	options.HelpText = []string{
 		"If no entries are found, check internet connection",
 		"• A: View details of a theme with option to download",
@@ -137,7 +138,7 @@ func (dtb DownloadThemesBrowser) Draw() (interface{}, int, error) {
 		actionText = "Unhide Theme"
 	}
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
 		{ButtonName: "A", HelpText: "Details"},
 		{ButtonName: "X", HelpText: actionText},
 	}

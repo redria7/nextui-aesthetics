@@ -2,6 +2,7 @@ package ui
 
 import (
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
@@ -56,11 +57,11 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	var decorationTypeName string
 	switch db.DecorationType {
 		case SelectIconName:
-			decorationTypeName = "Icon"
+			decorationTypeName = i18n.T("ae.deco.icon")
 		case SelectWallpaperName:
-			decorationTypeName = "Wallpaper"
+			decorationTypeName = i18n.T("ae.deco.wallpaper")
 		case SelectListWallpaperName:
-			decorationTypeName = "List Wallpaper"
+			decorationTypeName = i18n.T("ae.deco.list_wallpaper")
 	}
 	title := currentDirectory.DisplayName + ": " + decorationTypeName
 	if !topLevel {
@@ -68,7 +69,7 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	}
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
-	options.EmptyMessage = "No Decorations Found"
+	options.EmptyMessage = i18n.T("ae.empty.no_decorations")
 	options.EnableAction = true
 	options.EnableImages = true
 
@@ -78,26 +79,26 @@ func (db DecorationBrowser) Draw() (item interface{}, exitCode int, e error) {
 	options.VisibleStartIndex = visibleStartIndex
 
 	// Set footers
-	selectText := "Apply"
-	actionText := "Delete"
+	selectText := i18n.T("ae.btn.apply")
+	actionText := i18n.T("ae.btn.delete")
 	if topLevel {
-		selectText = "Open"
-		actionText = "Swap Aggregation"
+		selectText = i18n.T("ae.btn.open")
+		actionText = i18n.T("ae.btn.swap_aggregation")
 	}
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
 		{ButtonName: "A", HelpText: selectText},
 		{ButtonName: "X", HelpText: actionText},
 	}
 
 	// Set Help
 	options.EnableHelp = true
-	options.HelpTitle = "Decoration List Controls"
-	helpA := "Open confirmation screen to apply the selected decoration"
-	helpX := "Open confirmation screen to delete the selected decoration"
+	options.HelpTitle = i18n.T("ae.help.decoration_list")
+	helpA := i18n.T("ae.help.deco_apply")
+	helpX := i18n.T("ae.help.deco_delete")
 	if topLevel {
-		helpA = "Open selected aggregation to view available decorations"
-		helpX = "Change aggregation style to view console or directory groupings"
+		helpA = i18n.T("ae.help.deco_open")
+		helpX = i18n.T("ae.help.deco_swap")
 	}
 	options.HelpText = []string{
 		"• A: " + helpA,

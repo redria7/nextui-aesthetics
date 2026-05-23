@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/ui"
@@ -29,6 +30,8 @@ const (
 )
 
 func init() {
+	i18n.Init()
+
 	gaba.InitSDL(gaba.Options{
 		WindowTitle:    "Aesthetics",
 		ShowBackground: true,

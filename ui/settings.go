@@ -6,6 +6,7 @@ import (
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
 	"go.uber.org/zap"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 	"qlova.tech/sum"
@@ -30,11 +31,11 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 	items := []gabagool.ItemWithOptions{
 		{
 			Item: gabagool.MenuItem{
-				Text: "Log Level",
+				Text: i18n.T("ae.settings.log_level"),
 			},
 			Options: []gabagool.Option{
-				{DisplayName: "Debug", Value: "DEBUG"},
-				{DisplayName: "Error", Value: "ERROR"},
+				{DisplayName: i18n.T("ae.settings.log_level.debug"), Value: "DEBUG"},
+				{DisplayName: i18n.T("ae.settings.log_level.error"), Value: "ERROR"},
 			},
 			SelectedOption: func() int {
 				switch appState.Config.LogLevel {
@@ -48,11 +49,11 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 		},
 		{
 			Item: gabagool.MenuItem{
-				Text: "Decoration Aggregation",
+				Text: i18n.T("ae.settings.decoration_aggregation"),
 			},
 			Options: []gabagool.Option{
-				{DisplayName: "On Directory", Value: utils.AggregateByDirectory},
-				{DisplayName: "On Console", Value: utils.AggregateByConsole},
+				{DisplayName: i18n.T("ae.settings.aggregation.directory"), Value: utils.AggregateByDirectory},
+				{DisplayName: i18n.T("ae.settings.aggregation.console"), Value: utils.AggregateByConsole},
 			},
 			SelectedOption: func() int {
 				switch appState.Config.LogLevel {
@@ -67,13 +68,13 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 	}
 
 	footerHelpItems := []gabagool.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Cancel"},
-		{ButtonName: "←→", HelpText: "Cycle"},
-		{ButtonName: "Start", HelpText: "Save"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.cancel")},
+		{ButtonName: "←→", HelpText: i18n.T("ae.btn.cycle")},
+		{ButtonName: "Start", HelpText: i18n.T("ae.btn.save")},
 	}
 
 	result, err := gabagool.OptionsList(
-		"Aesthetics Settings",
+		i18n.T("ae.title.settings"),
 		items,
 		footerHelpItems,
 	)
@@ -87,10 +88,10 @@ func (s SettingsScreen) Draw() (settings interface{}, exitCode int, e error) {
 		newSettingOptions := result.Unwrap().Items
 
 		for _, option := range newSettingOptions {
-			if option.Item.Text == "Log Level" {
+			if option.Item.Text == i18n.T("ae.settings.log_level") {
 				logLevelValue := option.Options[option.SelectedOption].Value.(string)
 				appState.Config.LogLevel = logLevelValue
-			} else if option.Item.Text == "Decoration Aggregation" {
+			} else if option.Item.Text == i18n.T("ae.settings.decoration_aggregation") {
 				decorationAggregationValue := option.Options[option.SelectedOption].Value.(int)
 				appState.Config.DecorationAggregationType = decorationAggregationValue
 			}

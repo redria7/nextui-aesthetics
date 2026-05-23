@@ -4,6 +4,7 @@ import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -57,7 +58,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 	if isCurrentTheme {
 		if mtco.ClearSelected {
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearAllConfirm,
+				Text:     i18n.T(ClearAllConfirm),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -67,7 +68,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearNonContentOnlyName,
+				Text:     i18n.T(ClearNonContentOnlyName),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -76,7 +77,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearContentOnlyName,
+				Text:     i18n.T(ClearContentOnlyName),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -85,7 +86,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearAllName,
+				Text:     i18n.T(ClearAllName),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -95,7 +96,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			})
 		} else {
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SaveAllConfirm,
+				Text:     i18n.T(SaveAllConfirm),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -104,7 +105,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SaveForContentOnlyName,
+				Text:     i18n.T(SaveForContentOnlyName),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -112,7 +113,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 				},
 			})
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SaveForAllName,
+				Text:     i18n.T(SaveForAllName),
 				Selected: false,
 				Focused:  false,
 				Metadata: models.ComponentOptionSelections{
@@ -122,7 +123,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 		}
 	} else {
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllConfirm,
+			Text:     i18n.T(ApplyAllConfirm),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -131,7 +132,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyActivePreserve,
+			Text:     i18n.T(ApplyActivePreserve),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -140,7 +141,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllPreserve,
+			Text:     i18n.T(ApplyAllPreserve),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -149,7 +150,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyActiveOverwrite,
+			Text:     i18n.T(ApplyActiveOverwrite),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -157,7 +158,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllOverwrite,
+			Text:     i18n.T(ApplyAllOverwrite),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -165,7 +166,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyActiveAndClearName,
+			Text:     i18n.T(ApplyActiveAndClearName),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -174,7 +175,7 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 			},
 		})
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     ApplyAllAndClearName,
+			Text:     i18n.T(ApplyAllAndClearName),
 			Selected: false,
 			Focused:  false,
 			Metadata: models.ComponentOptionSelections{
@@ -185,9 +186,9 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 	}
 
 	// Set options
-	options := gaba.DefaultListOptions("Component Options", menuItems)
+	options := gaba.DefaultListOptions(i18n.T("ae.title.component_options"), menuItems)
 	options.SmallTitle = true
-	options.EmptyMessage = "No supported components!"
+	options.EmptyMessage = i18n.T("ae.empty.no_components")
 
 	// Set index
 	selectedIndex, visibleStartIndex := state.GetCurrentMenuPosition()
@@ -196,13 +197,13 @@ func (mtco ManageThemeComponentOptions) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.select")},
 	}
 	
 	// Set Help
 	options.EnableHelp = true
-	options.HelpTitle = "Component Management Options"
+	options.HelpTitle = i18n.T("ae.help.component_options")
 	options.HelpText = []string{
 		"• 'Active Consoles' have roms inside!",
 		"• 'Empty Consoles' have no roms :(",

@@ -5,6 +5,7 @@ import (
 	shared "github.com/UncleJunVIP/nextui-pak-shared-functions/models"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -75,7 +76,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 		if !utils.CheckIfCollectionTxtChild(currentDirectory.Path) {
 			if utils.CheckWallpaperPath(currentPath) {
 				menuItems = append(menuItems, gaba.MenuItem{
-					Text:     ClearWallpaperName,
+					Text:     i18n.T(ClearWallpaperName),
 					Selected: false,
 					Focused:  false,
 					Metadata: ClearWallpaperName,
@@ -84,7 +85,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 				})
 			}
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     SelectWallpaperName,
+				Text:     i18n.T(SelectWallpaperName),
 				Selected: false,
 				Focused:  false,
 				Metadata: SelectWallpaperName,
@@ -94,7 +95,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 		}
 		if utils.CheckIconPath(parentPath, currentDirectory.Path) {
 			menuItems = append(menuItems, gaba.MenuItem{
-				Text:     ClearIconName,
+				Text:     i18n.T(ClearIconName),
 				Selected: false,
 				Focused:  false,
 				Metadata: ClearIconName,
@@ -103,7 +104,7 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 			})
 		}
 		menuItems = append(menuItems, gaba.MenuItem{
-			Text:     SelectIconName,
+			Text:     i18n.T(SelectIconName),
 			Selected: false,
 			Focused:  false,
 			Metadata: SelectIconName,
@@ -124,8 +125,8 @@ func (do DecorationOptions) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.select")},
 	}
 
 	// Wait for results
