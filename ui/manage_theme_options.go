@@ -4,6 +4,7 @@ import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -33,13 +34,13 @@ func (mto ManageThemeOptions) Draw() (interface{}, int, error) {
 	// Add items to menu
 	var menuItems []gaba.MenuItem
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     RenameDisplayName,
+		Text:     i18n.T(RenameDisplayName),
 		Selected: false,
 		Focused:  false,
 		Metadata: RenameDisplayName,
 	})
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     DeleteDisplayName,
+		Text:     i18n.T(DeleteDisplayName),
 		Selected: false,
 		Focused:  false,
 		Metadata: DeleteDisplayName,
@@ -56,8 +57,8 @@ func (mto ManageThemeOptions) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.select")},
 	}
 
 	// Wait for results

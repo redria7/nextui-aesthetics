@@ -1,8 +1,10 @@
 package utils
 
 import (
-	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"time"
+
+	gaba "github.com/redria7/gabagool/pkg/gabagool"
+	"nextui-aesthetics/internal/i18n"
 )
 
 func ShowTimedMessage(message string, delay time.Duration) {
@@ -14,8 +16,8 @@ func ShowTimedMessage(message string, delay time.Duration) {
 
 func ConfirmAction(message string, imagePath string) bool {
 	result, err := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "I Changed My Mind"},
-		{ButtonName: "A", HelpText: "Yes"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.changed_mind")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.yes")},
 	}, gaba.MessageOptions{
 		ImagePath: imagePath,
 	})
@@ -26,7 +28,7 @@ func ConfirmAction(message string, imagePath string) bool {
 func ConfirmActionCustomBack(message string, imagePath string, backText string) bool {
 	result, err := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
 		{ButtonName: "B", HelpText: backText},
-		{ButtonName: "A", HelpText: "Yes"},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.yes")},
 	}, gaba.MessageOptions{
 		ImagePath: imagePath,
 	})
@@ -36,8 +38,8 @@ func ConfirmActionCustomBack(message string, imagePath string, backText string) 
 
 func ConfirmBulkAction(message string) bool {
 	confirm, _ := gaba.ConfirmationMessage(message, []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Cancel"},
-		{ButtonName: "X", HelpText: "Remove"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.cancel")},
+		{ButtonName: "X", HelpText: i18n.T("ae.btn.remove")},
 	}, gaba.MessageOptions{
 		ImagePath:     "",
 		ConfirmButton: gaba.ButtonX,

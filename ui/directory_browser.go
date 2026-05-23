@@ -2,6 +2,7 @@ package ui
 
 import (
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 	"github.com/UncleJunVIP/nextui-pak-shared-functions/common"
@@ -107,14 +108,14 @@ func (db DirectoryBrowser) Draw() (item interface{}, exitCode int, e error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "A", HelpText: "Open Folder"},
-		{ButtonName: "X", HelpText: "Decoration Options"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.open_folder")},
+		{ButtonName: "X", HelpText: i18n.T("ae.btn.decoration_options")},
 	}
 
 	// Set Help
 	options.EnableHelp = true
-	options.HelpTitle = "Directory List Controls"
+	options.HelpTitle = i18n.T("ae.help.directory_list")
 	options.HelpText = []string{
 		"• A: Drill down into the currently selected folder",
 		"• X: View decoration options for the current selection",
@@ -209,7 +210,7 @@ func buildRomDirectoryMenuItems(currentDirectory shared.RomDirectory, logger *za
 }
 
 func showRomDirectoryError() {
-	gaba.ConfirmationMessage("Unable to fetch directories!", []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Quit"},
+	gaba.ConfirmationMessage(i18n.T("ae.error.fetch_dirs"), []gaba.FooterHelpItem{
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.quit")},
 	}, gaba.MessageOptions{})
 }

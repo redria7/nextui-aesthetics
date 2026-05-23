@@ -3,6 +3,7 @@ package ui
 import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/models"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
@@ -28,28 +29,29 @@ func (m MainMenu) Name() sum.Int[models.ScreenName] {
 func (m MainMenu) Draw() (interface{}, int, error) {
 	title := "Aesthetics"
 
-	// Add items to menu
+	// Add items to menu (Text is translated, Metadata stays in English so
+	// the switch-case dispatch in app/aesthetics.go keeps working).
 	var menuItems []gaba.MenuItem
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     DownloadThemesDisplayName,
+		Text:     i18n.T("ae.menu.download_themes"),
 		Selected: false,
 		Focused:  false,
 		Metadata: DownloadThemesDisplayName,
 	})
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     ManageThemesDisplayName,
+		Text:     i18n.T("ae.menu.manage_themes"),
 		Selected: false,
 		Focused:  false,
 		Metadata: ManageThemesDisplayName,
 	})
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     ManageCurrentThemeDisplayName,
+		Text:     i18n.T("ae.menu.manage_current"),
 		Selected: false,
 		Focused:  false,
 		Metadata: ManageCurrentThemeDisplayName,
 	})
 	menuItems = append(menuItems, gaba.MenuItem{
-		Text:     DecorationsDisplayName,
+		Text:     i18n.T("ae.menu.decorations"),
 		Selected: false,
 		Focused:  false,
 		Metadata: DecorationsDisplayName,
@@ -66,9 +68,9 @@ func (m MainMenu) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Quit"},
-		{ButtonName: "X", HelpText: "Settings"},
-		{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.quit")},
+		{ButtonName: "X", HelpText: i18n.T("ae.btn.settings")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.select")},
 	}
 
 	// Wait for results

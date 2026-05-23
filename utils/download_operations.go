@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"unicode"
 	"sort"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/models"
 	"os"
 	"errors"
@@ -177,7 +178,7 @@ func DownloadTheme(theme models.ThemeSummary) error {
 	EnsureDirectoryExists(themePath)
 
 	// Extract the ZIP file
-	_, err = gaba.ProcessMessage("Unzipping " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
+	_, err = gaba.ProcessMessage(i18n.T("ae.progress.unzipping") + " " + theme.ThemeName, gaba.ProcessMessageOptions{}, func() (interface{}, error) {
 		err = extractThemeZip(tmp, themePath)
 		if err != nil {
 			return nil, err
@@ -194,7 +195,7 @@ func downloadThemeZip(theme models.ThemeSummary) (tempFile string, completed boo
 	res, err := gaba.DownloadManager([]gaba.Download{{
 		URL:         theme.ZipPath,
 		Location:    tmp,
-		DisplayName: "Downloading " + theme.ThemeName,
+		DisplayName: i18n.T("ae.progress.downloading") + " " + theme.ThemeName,
 	}}, make(map[string]string), true)
 
 	if err == nil && len(res.Errors) > 0 {
@@ -216,7 +217,7 @@ func DownloadThemePreviews(themes []models.ThemeSummary) {
 		downloads = append(downloads, gaba.Download{
 			URL: previewURLPrefix + theme.PreviewPath,
 			Location: filepath.Join(ThemeLibrary, theme.ThemeName, previewStandardName),
-			DisplayName: "Downloading " + theme.ThemeName + " Preview",
+			DisplayName: i18n.T("ae.progress.downloading") + " " + theme.ThemeName + " " + i18n.T("ae.progress.preview"),
 		})
 	}
 

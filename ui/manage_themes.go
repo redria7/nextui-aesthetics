@@ -5,6 +5,7 @@ import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -26,7 +27,7 @@ func (mt ManageThemes) Name() sum.Int[models.ScreenName] {
 }
 
 func (mt ManageThemes) Draw() (interface{}, int, error) {
-	title := "Manage Themes"
+	title := i18n.T("ae.title.manage_themes")
 
 	// Add items to menu
 	currentThemes := utils.GetDownloadedThemes()
@@ -55,7 +56,7 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EnableAction = true
-	options.EmptyMessage = "No themes to manage! Save or download some!"
+	options.EmptyMessage = i18n.T("ae.empty.no_themes_manage")
 	options.EnableImages = true
 
 	// Set index
@@ -65,9 +66,9 @@ func (mt ManageThemes) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "X", HelpText: "Options"},
-		{ButtonName: "A", HelpText: "Select"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "X", HelpText: i18n.T("ae.btn.options")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.select")},
 	}
 
 	// Wait for results

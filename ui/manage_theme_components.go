@@ -4,6 +4,7 @@ import (
 	gaba "github.com/redria7/gabagool/pkg/gabagool"
 	"qlova.tech/sum"
 	"nextui-aesthetics/models"
+	"nextui-aesthetics/internal/i18n"
 	"nextui-aesthetics/state"
 	"nextui-aesthetics/utils"
 )
@@ -30,19 +31,19 @@ func (mtc ManageThemeComponents) Name() sum.Int[models.ScreenName] {
 
 func (mtc ManageThemeComponents) Draw() (interface{}, int, error) {
 	// Set values depending on selected theme
-	themeTitle := "Current"
-	actionOption := "Clear"
-	selectOption := "Save"
-	selectHelp := "Save selected components into a theme"
-	actionHelp := "Revert selected components to default settings"
+	themeTitle := i18n.T("ae.label.current")
+	actionOption := i18n.T("ae.btn.clear")
+	selectOption := i18n.T("ae.btn.save")
+	selectHelp := i18n.T("ae.help.save_components")
+	actionHelp := i18n.T("ae.help.revert_components")
 	if mtc.Theme != (models.Theme{}) {
 		themeTitle = mtc.Theme.ThemeName
-		actionOption = "Delete"
-		selectOption = "Apply"
-		selectHelp = "Apply selected components to device"
-		actionHelp = "Delete selected components from the theme"
+		actionOption = i18n.T("ae.btn.delete")
+		selectOption = i18n.T("ae.btn.apply")
+		selectHelp = i18n.T("ae.help.apply_components")
+		actionHelp = i18n.T("ae.help.delete_components")
 	}
-	title := "Manage " + themeTitle + " Components"
+	title := i18n.T("ae.title.manage_components_prefix") + " " + themeTitle + " " + i18n.T("ae.title.manage_components_suffix")
 
 	// Add items to menu
 	components := utils.GetThemeComponents(mtc.Theme)
@@ -62,7 +63,7 @@ func (mtc ManageThemeComponents) Draw() (interface{}, int, error) {
 	options := gaba.DefaultListOptions(title, menuItems)
 	options.SmallTitle = true
 	options.EnableAction = true
-	options.EmptyMessage = "No supported components!"
+	options.EmptyMessage = i18n.T("ae.empty.no_components")
 	// Multiselect fixed options
 	options.EnableMultiSelect = true
 	options.StartInMultiSelectMode = true
@@ -75,17 +76,17 @@ func (mtc ManageThemeComponents) Draw() (interface{}, int, error) {
 
 	// Set footers
 	options.FooterHelpItems = []gaba.FooterHelpItem{
-		{ButtonName: "B", HelpText: "Back"},
-		{ButtonName: "A", HelpText: "Toggle"},
+		{ButtonName: "B", HelpText: i18n.T("ae.btn.back")},
+		{ButtonName: "A", HelpText: i18n.T("ae.btn.toggle")},
 		{ButtonName: "X", HelpText: actionOption},
 		{ButtonName: "Start", HelpText: selectOption},
 	}
-	
+
 	// Set Help
 	options.EnableHelp = true
-	options.HelpTitle = "Component Management Controls"
+	options.HelpTitle = i18n.T("ae.help.component_management")
 	options.HelpText = []string{
-		"• A: Toggle a component to include in the selected action",
+		"• A: " + i18n.T("ae.help.toggle"),
 		"• Start: " + selectHelp,
 		"• X: " + actionHelp,
 	}
